@@ -10,8 +10,13 @@ This guide defines the standard architecture and patterns for implementing backe
 
 From the `backend/` directory, start the development server with:
 
+1. Activate the virtual environment
 ```bash
-../venv/Scripts/uvicorn.exe app.main:app --reload
+./venv/Scripts/activatein:app --reload
+```
+2. Run the app
+```bash
+py -m uvicorn app.main:app --reload
 ```
 
 The API will be available at `http://localhost:8000` with auto-reload enabled for development.
