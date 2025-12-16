@@ -1,0 +1,224 @@
+version: 2
+
+sources:
+  # ============================================
+  # GOOGLE ADS SOURCES
+  # ============================================
+  - name: google_ads
+    database: CLIENT_RARE_SEEDS_DB
+    schema: GOOGLE_ADS
+    description: "Google Ads data synced via Fivetran"
+    tables:
+      # Account & Campaign
+      - name: account_history
+        description: "Google Ads account metadata history (SCD Type 2)"
+      - name: campaign_history
+        description: "Campaign configuration history (SCD Type 2)"
+      - name: campaign_stats
+        description: "Daily campaign performance metrics"
+      - name: campaign_hourly_stats
+        description: "Hourly campaign performance metrics"
+      - name: campaign_budget_history
+        description: "Campaign budget configuration history (SCD Type 2)"
+
+      # Ad Group
+      - name: ad_group_history
+        description: "Ad group configuration history (SCD Type 2)"
+      - name: ad_group_stats
+        description: "Daily ad group performance metrics"
+      - name: ad_group_criterion_history
+        description: "Ad group targeting criteria (keywords, etc.) history"
+
+      # Ad
+      - name: ad_history
+        description: "Ad configuration history (SCD Type 2)"
+      - name: ad_stats
+        description: "Daily ad performance metrics"
+
+      # Keyword & Search
+      - name: keyword_stats
+        description: "Daily keyword performance metrics"
+      - name: search_term_stats
+        description: "Daily search term performance metrics"
+
+      # Bidding
+      - name: campaign_bidding_strategy_history
+        description: "Campaign bidding strategy configuration history (SCD Type 2)"
+
+      # Audience
+      - name: user_list
+        description: "User list / audience definitions"
+
+  # ============================================
+  # META ADS SOURCES
+  # ============================================
+  - name: meta_ads
+    database: CLIENT_RARE_SEEDS_DB
+    schema: META_ADS
+    description: "Meta Ads (Facebook/Instagram) data synced via Fivetran"
+    tables:
+      # Account
+      - name: account_history
+        description: "Facebook Ads account metadata history"
+
+      # Campaign
+      - name: campaign_history
+        description: "Campaign configuration history"
+      - name: basic_campaign
+        description: "Daily campaign performance metrics"
+
+      # Ad Set
+      - name: ad_set_history
+        description: "Ad set configuration history"
+      - name: basic_ad_set
+        description: "Daily ad set performance metrics"
+
+      # Ad
+      - name: ad_history
+        description: "Ad configuration history"
+      - name: basic_ad
+        description: "Daily ad performance metrics"
+
+      # Video
+      - name: ad_video_history
+        description: "Video asset metadata and performance"
+
+      # Creative
+      - name: creative_history
+        description: "Creative asset metadata (headlines, body, CTA, images)"
+
+      # Images
+      - name: ad_image_history
+        description: "Image asset metadata"
+
+      # Conversions
+      - name: ad_conversion
+        description: "Ad conversion tracking data"
+      - name: basic_ad_actions
+        description: "Ad-level conversion actions (purchases, add_to_cart, etc.)"
+
+      # Demographics
+      - name: demographics_age
+        description: "Performance metrics by age bracket"
+      - name: demographics_gender
+        description: "Performance metrics by gender"
+
+      # Delivery
+      - name: delivery_device
+        description: "Performance metrics by device type"
+      - name: delivery_platform
+        description: "Performance metrics by platform (Facebook, Instagram, etc.)"
+
+  # ============================================
+  # GA4 (Google Analytics 4) SOURCES
+  # ============================================
+  - name: ga4
+    database: CLIENT_RARE_SEEDS_DB
+    schema: GA4
+    description: "Google Analytics 4 data synced via Fivetran"
+    tables:
+      # Traffic & Acquisition
+      - name: traffic_acquisition_session_source_medium_report
+        description: "Traffic acquisition by source/medium"
+      - name: session_source_medium_report
+        description: "Session metrics by source/medium"
+
+      # Conversions
+      - name: conversions_report
+        description: "Conversion events report"
+      - name: conversion_events
+        description: "Conversion event definitions"
+
+      # Ecommerce
+      - name: ecommerce_purchases_item_name_report
+        description: "Ecommerce purchases by item name"
+
+      # Demographics
+      - name: demographic_age_report
+        description: "User metrics by age bracket"
+      - name: demographic_gender_report
+        description: "User metrics by gender"
+
+      # Audiences
+      - name: audiences_report
+        description: "Audience performance metrics"
+
+      # Device / Tech
+      - name: tech_device_category_report
+        description: "Metrics by device category"
+      - name: tech_browser_report
+        description: "Metrics by browser"
+      - name: tech_platform_report
+        description: "Metrics by platform"
+
+      # Geography
+      - name: demographic_country_report
+        description: "Metrics by country"
+      - name: demographic_region_report
+        description: "Metrics by region"
+      - name: demographic_city_report
+        description: "Metrics by city"
+
+      # Pages
+      - name: pages_path_report
+        description: "Page path performance with engagement metrics"
+      - name: pages_title_and_screen_name_report
+        description: "Page title performance metrics"
+
+      # Events
+      - name: events_report
+        description: "Event-level aggregated metrics"
+
+      # First-Touch Attribution
+      - name: user_acquisition_first_user_source_medium_report
+        description: "First-touch attribution by source/medium"
+
+  # ============================================
+  # KLAVIYO SOURCES
+  # ============================================
+  - name: klaviyo
+    database: CLIENT_RARE_SEEDS_DB
+    schema: KLAVIYO
+    description: "Klaviyo email marketing data synced via Fivetran"
+    tables:
+      # Campaigns
+      - name: campaign
+        description: "Email campaign definitions"
+      - name: campaign_message
+        description: "Campaign message content"
+
+      # Flows
+      - name: flow
+        description: "Automated flow definitions"
+      - name: flow_action
+        description: "Flow action configurations"
+      - name: flow_message
+        description: "Flow message content"
+
+      # Templates
+      - name: email_template
+        description: "Email template definitions"
+
+      # Events
+      - name: event
+        description: "All Klaviyo events (opens, clicks, deliveries, etc.)"
+
+      # Segments
+      - name: segment
+        description: "Segment definitions"
+      - name: segment_person
+        description: "Segment membership"
+
+      # Lists
+      - name: list
+        description: "List definitions"
+      - name: list_person
+        description: "List membership"
+
+      # Metrics
+      - name: metric
+        description: "Metric definitions"
+
+      # Person (Customer)
+      - name: person
+        description: "Customer profiles with CLV predictions and churn probability"

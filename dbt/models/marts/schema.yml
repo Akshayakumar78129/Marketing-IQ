@@ -1,0 +1,510 @@
+version: 2
+
+models:
+  # ============================================
+  # DIMENSION TABLES (21 Total)
+  # ============================================
+
+  # --- Core Dimensions ---
+  - name: dim_date
+    description: "Date dimension table with calendar attributes"
+    columns:
+      - name: date_key
+        description: "Primary key (date)"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: dim_platform
+    description: "Platform dimension from seed data"
+    columns:
+      - name: platform_code
+        description: "Platform code identifier"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: dim_hour
+    description: "Hour dimension table (0-23)"
+    columns:
+      - name: hour_key
+        description: "Hour integer (0-23)"
+        data_tests:
+          - unique
+          - not_null
+
+  # --- Account & Campaign Dimensions ---
+  - name: dim_account
+    description: "Unified advertising accounts from Google Ads and Facebook Ads"
+    columns:
+      - name: account_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: dim_campaign
+    description: "Unified campaign dimension from Google Ads and Facebook Ads (SCD Type 2)"
+    columns:
+      - name: campaign_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: dim_ad_group
+    description: "Google Ads ad groups"
+    columns:
+      - name: ad_group_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: dim_ad_set
+    description: "Facebook Ads ad sets"
+    columns:
+      - name: ad_set_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: dim_ad
+    description: "Unified ad dimension from Google Ads and Facebook Ads"
+    columns:
+      - name: ad_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  # --- Targeting Dimensions ---
+  - name: dim_keyword
+    description: "Google Ads keywords from ad group criteria"
+    columns:
+      - name: keyword_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: dim_bidding_strategy
+    description: "Bidding strategy configurations"
+    columns:
+      - name: bidding_strategy_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: dim_device
+    description: "Device types dimension"
+    columns:
+      - name: device_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: dim_geography
+    description: "Geographic locations from GA4 reports"
+    columns:
+      - name: geography_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  # --- GA4 Dimensions ---
+  - name: dim_source_medium
+    description: "Traffic source/medium combinations from GA4"
+    columns:
+      - name: source_medium_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: dim_conversion_action
+    description: "Conversion events from GA4"
+    columns:
+      - name: conversion_action_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  # --- Klaviyo Dimensions ---
+  - name: dim_email_campaign
+    description: "Klaviyo email campaigns"
+    columns:
+      - name: email_campaign_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: dim_email_flow
+    description: "Klaviyo automated flows"
+    columns:
+      - name: email_flow_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: dim_email_template
+    description: "Klaviyo email templates"
+    columns:
+      - name: email_template_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: dim_segment
+    description: "Klaviyo segments"
+    columns:
+      - name: segment_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: dim_list
+    description: "Klaviyo lists"
+    columns:
+      - name: list_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  # --- Audience & Video Dimensions ---
+  - name: dim_audience
+    description: "Unified audiences from Google Ads and Klaviyo"
+    columns:
+      - name: audience_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: dim_video
+    description: "Facebook video assets"
+    columns:
+      - name: video_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  # ============================================
+  # FACT TABLES (22 Total)
+  # ============================================
+
+  # --- Core Performance Facts ---
+  - name: fct_campaign_performance
+    description: "Unified campaign daily performance from Google Ads and Facebook Ads"
+    columns:
+      - name: performance_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+      - name: platform
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['google_ads', 'meta']
+
+  - name: fct_ad_performance
+    description: "Unified ad daily performance from Google Ads and Facebook Ads"
+    columns:
+      - name: ad_performance_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: fct_campaign_hourly
+    description: "Hourly campaign performance from Google Ads"
+    columns:
+      - name: hourly_performance_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: fct_ad_group_performance
+    description: "Daily ad group performance from Google Ads"
+    columns:
+      - name: ad_group_performance_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: fct_ad_set_performance
+    description: "Daily ad set performance from Facebook Ads"
+    columns:
+      - name: ad_set_performance_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  # --- Keyword & Search Facts ---
+  - name: fct_keyword_performance
+    description: "Daily keyword performance from Google Ads"
+    columns:
+      - name: keyword_performance_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: fct_search_term
+    description: "Daily search term performance from Google Ads"
+    columns:
+      - name: search_term_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  # --- GA4 Facts ---
+  - name: fct_ga4_traffic
+    description: "GA4 traffic acquisition by source/medium"
+    columns:
+      - name: ga4_traffic_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: fct_ga4_conversions
+    description: "GA4 conversion events"
+    columns:
+      - name: ga4_conversion_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: fct_ecommerce_item
+    description: "GA4 ecommerce item performance"
+    columns:
+      - name: ecommerce_item_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  # --- Klaviyo Facts ---
+  - name: fct_email_campaign
+    description: "Klaviyo email campaign aggregated metrics"
+    columns:
+      - name: email_campaign_performance_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: fct_email_flow
+    description: "Klaviyo email flow aggregated metrics"
+    columns:
+      - name: email_flow_performance_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: fct_segment_membership
+    description: "Klaviyo segment membership"
+    columns:
+      - name: segment_membership_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: fct_list_membership
+    description: "Klaviyo list membership"
+    columns:
+      - name: list_membership_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  # --- Engagement Facts ---
+  - name: fct_video_performance
+    description: "Facebook video performance metrics"
+    columns:
+      - name: video_performance_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: fct_ad_reactions
+    description: "Facebook ad engagement metrics"
+    columns:
+      - name: ad_reactions_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: fct_demographics
+    description: "GA4 demographics (age/gender) performance"
+    columns:
+      - name: demographics_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: fct_audience_performance
+    description: "GA4 audience performance metrics"
+    columns:
+      - name: audience_performance_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  # --- History Facts ---
+  - name: fct_campaign_settings_history
+    description: "Campaign settings change history (SCD Type 2)"
+    columns:
+      - name: campaign_settings_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: fct_ad_group_settings_history
+    description: "Ad group settings change history (SCD Type 2)"
+    columns:
+      - name: ad_group_settings_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: fct_bidding_changes
+    description: "Bidding strategy change history (SCD Type 2)"
+    columns:
+      - name: bidding_change_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: fct_budget_changes
+    description: "Campaign budget change history (SCD Type 2)"
+    columns:
+      - name: budget_change_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  # --- New Meta Ads Dimensions (Added) ---
+  - name: dim_creative
+    description: "Meta Ads creative assets (headlines, body copy, CTA, images, videos)"
+    columns:
+      - name: creative_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: dim_image
+    description: "Meta Ads image assets with dimensions and aspect ratio"
+    columns:
+      - name: image_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  # --- Klaviyo Customer Dimension ---
+  - name: dim_person
+    description: "Klaviyo customer profiles with CLV predictions and churn probability"
+    columns:
+      - name: person_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  # --- New Meta Ads Facts ---
+  - name: fct_meta_conversion
+    description: "Meta Ads conversion actions (purchases, add_to_cart, etc.) by ad"
+    columns:
+      - name: meta_conversion_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: fct_meta_demographics
+    description: "Meta Ads performance metrics by age and gender"
+    columns:
+      - name: demographics_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: fct_meta_delivery
+    description: "Meta Ads performance metrics by device and platform"
+    columns:
+      - name: delivery_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  # --- New GA4 Facts ---
+  - name: fct_ga4_pages
+    description: "GA4 page-level performance with engagement metrics"
+    columns:
+      - name: ga4_page_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: fct_ga4_events
+    description: "GA4 event-level aggregated metrics with event categorization"
+    columns:
+      - name: ga4_event_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  - name: fct_ga4_first_touch
+    description: "GA4 first-touch attribution metrics by source/medium"
+    columns:
+      - name: first_touch_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+
+  # --- Klaviyo Revenue Fact ---
+  - name: fct_klaviyo_revenue
+    description: "Klaviyo revenue from Placed Order events attributed to campaigns/flows"
+    columns:
+      - name: klaviyo_revenue_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null

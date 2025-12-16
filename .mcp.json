@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "snowflake": {
+      "command": "python",
+      "args": [
+        "C:\\Users\\Akshay kumar\\Desktop\\Marketing-IQ\\scripts\\run_mcp.py"
+      ]
+    }
+  }
+}

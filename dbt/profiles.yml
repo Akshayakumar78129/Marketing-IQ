@@ -1,0 +1,48 @@
+# Marketing IQ - DBT Profiles Configuration
+# This file should NOT be committed to git (use environment variables in CI/CD)
+# Documentation: https://docs.getdbt.com/reference/profiles.yml
+
+marketing_iq:
+  target: dev
+  outputs:
+    # Development environment
+    dev:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
+      password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+      role: "{{ env_var('SNOWFLAKE_ROLE', 'TRANSFORMER') }}"
+      database: CLIENT_RARE_SEEDS_DB
+      warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE', 'COMPUTE_WH') }}"
+      schema: PUBLIC
+      threads: 4
+      client_session_keep_alive: False
+      query_tag: dbt_dev
+
+    # Staging environment
+    staging:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
+      password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+      role: "{{ env_var('SNOWFLAKE_ROLE', 'TRANSFORMER') }}"
+      database: CLIENT_RARE_SEEDS_DB
+      warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE', 'COMPUTE_WH') }}"
+      schema: DBT_STAGING
+      threads: 4
+      client_session_keep_alive: False
+      query_tag: dbt_staging
+
+    # Production environment
+    prod:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
+      password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+      role: "{{ env_var('SNOWFLAKE_ROLE', 'TRANSFORMER') }}"
+      database: CLIENT_RARE_SEEDS_DB
+      warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE', 'COMPUTE_WH') }}"
+      schema: ANALYTICS
+      threads: 8
+      client_session_keep_alive: False
+      query_tag: dbt_prod

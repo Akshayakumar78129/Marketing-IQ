@@ -1,0 +1,14 @@
+# Snowflake MCP Server Configuration
+# Marketing IQ - Data Warehouse Connection
+
+# Enable these services
+other_services:
+  object_manager: true
+  query_manager: true
+  semantic_manager: false
+
+# Allow these SQL statement types (each must be a dict with bool value)
+sql_statement_permissions:
+  - Select: true
+  - Describe: true
+  - Show: true

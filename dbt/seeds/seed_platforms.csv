@@ -1,0 +1,6 @@
+platform_code,platform_name,platform_display_name,is_advertising,is_analytics,is_email
+google_ads,Google Ads,Google Ads,true,false,false
+meta,Meta Ads,Meta Ads (Facebook/Instagram),true,false,false
+ga4,Google Analytics 4,GA4,false,true,false
+klaviyo,Klaviyo,Klaviyo,false,false,true
+magento,Magento,Magento,false,false,false

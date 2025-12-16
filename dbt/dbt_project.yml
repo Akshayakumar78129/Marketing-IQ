@@ -1,0 +1,52 @@
+# Marketing IQ - DBT Project Configuration
+# Documentation: https://docs.getdbt.com/reference/project-configs
+
+name: 'marketing_iq'
+version: '1.0.0'
+config-version: 2
+
+profile: 'marketing_iq'
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# Model configurations
+models:
+  marketing_iq:
+    marts:
+      +materialized: table
+      +schema: analytics
+      core:
+        +tags: ['facts', 'core']
+      dimensions:
+        +tags: ['dimensions']
+      facts:
+        +tags: ['facts']
+
+# Seed configurations
+seeds:
+  marketing_iq:
+    +schema: analytics
+
+# Variable defaults
+vars:
+  start_date: '2023-01-01'
+  platforms:
+    - google_ads
+    - meta
+    - ga4
+    - klaviyo
+
+# Query settings
+query-comment:
+  comment: "Marketing IQ DBT"
+  append: true
