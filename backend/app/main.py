@@ -4,6 +4,9 @@ Marketing IQ - FastAPI Application
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+# Import feature routers
+from app.features.google_ads import router as google_ads_router
+
 # Create FastAPI app
 app = FastAPI(
     title="Marketing IQ API",
@@ -34,7 +37,10 @@ async def health_check():
     return {"status": "healthy"}
 
 
-# TODO: Include routers
+# Include feature routers with /api/v1 prefix
+app.include_router(google_ads_router, prefix="/api/v1")
+
+# TODO: Include additional routers
 # from app.api import auth, tenants, dashboards, metrics
 # app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 # app.include_router(tenants.router, prefix="/tenants", tags=["Tenants"])

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide defines the standard architecture and patterns for implementing backend APIs in the Marketing IQ application. All new APIs must follow this layered architecture to ensure consistency, maintainability, and testability.
+This guide defines the standard architecture and patterns for implementing backend APIs in the Marketing IQ application. All new APIs must follow this **feature-based (vertical slice) architecture** to ensure consistency, maintainability, and testability.
 
 ---
 
@@ -12,7 +12,7 @@ From the `backend/` directory, start the development server with:
 
 1. Activate the virtual environment
 ```bash
-./venv/Scripts/activatein:app --reload
+./venv/Scripts/activate
 ```
 2. Run the app
 ```bash
@@ -20,6 +20,9 @@ py -m uvicorn app.main:app --reload
 ```
 
 The API will be available at `http://localhost:8000` with auto-reload enabled for development.
+
+- **API Docs**: http://localhost:8000/api/docs
+- **ReDoc**: http://localhost:8000/api/redoc
 
 ---
 
@@ -33,35 +36,25 @@ The API will be available at `http://localhost:8000` with auto-reload enabled fo
                                  │
                                  ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                      ROUTERS (Controllers)                       │
-│                       app/routers/*.py                          │
+│                      FEATURE MODULES                             │
+│                   app/features/{platform}/                       │
 │                                                                 │
-│  - Define API endpoints (@router.get, @router.post, etc.)       │
-│  - Handle HTTP request/response                                 │
-│  - Input validation via Pydantic models                         │
-│  - Call Service layer (no business logic here)                  │
+│  - Each platform (google_ads, meta, etc.) is a feature module   │
+│  - Contains sub-features as vertical slices                     │
+│  - Exports combined router via __init__.py                      │
 └─────────────────────────────────────────────────────────────────┘
                                  │
                                  ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                      SERVICES (Business Logic)                   │
-│                       app/services/*.py                         │
+│                    SUB-FEATURE (Vertical Slice)                  │
+│              app/features/{platform}/{feature}/                  │
 │                                                                 │
-│  - Implement business rules and logic                           │
-│  - Orchestrate multiple repository calls                        │
-│  - Data transformation and aggregation                          │
-│  - No direct database access (use Repository)                   │
-└─────────────────────────────────────────────────────────────────┘
-                                 │
-                                 ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    REPOSITORIES (Data Access)                    │
-│                     app/repositories/*.py                       │
-│                                                                 │
-│  - Execute SQL queries via execute_query()                      │
-│  - Map database results to domain objects                       │
-│  - Handle data persistence operations                           │
-│  - No business logic (pure data access)                         │
+│  ┌─────────────┐   ┌─────────────┐   ┌──────────────┐          │
+│  │  router.py  │ → │ service.py  │ → │ repository.py │          │
+│  │ (Endpoints) │   │  (Logic)    │   │    (SQL)      │          │
+│  └─────────────┘   └─────────────┘   └──────────────┘          │
+│         │                                                       │
+│         └──────────────── models.py (DTOs) ─────────────────────┤
 └─────────────────────────────────────────────────────────────────┘
                                  │
                                  ▼
@@ -83,124 +76,128 @@ The API will be available at `http://localhost:8000` with auto-reload enabled fo
 backend/
 ├── app/
 │   ├── __init__.py
-│   ├── main.py                    # FastAPI app entry point
+│   ├── main.py                         # FastAPI app entry point
 │   │
-│   ├── routers/                   # API route handlers
+│   ├── core/                           # Core utilities
 │   │   ├── __init__.py
-│   │   ├── campaigns.py           # /api/v1/campaigns endpoints
-│   │   ├── accounts.py            # /api/v1/accounts endpoints
-│   │   ├── metrics.py             # /api/v1/metrics endpoints
-│   │   └── dashboards.py          # /api/v1/dashboards endpoints
+│   │   ├── config.py                   # Settings management
+│   │   ├── database.py                 # Database connection & execute_query()
+│   │   └── exceptions.py               # Custom exceptions
 │   │
-│   ├── services/                  # Business logic layer
-│   │   ├── __init__.py
-│   │   ├── campaign_service.py
-│   │   ├── account_service.py
-│   │   ├── metrics_service.py
-│   │   └── dashboard_service.py
-│   │
-│   ├── repositories/              # Data access layer
-│   │   ├── __init__.py
-│   │   ├── campaign_repository.py
-│   │   ├── account_repository.py
-│   │   ├── metrics_repository.py
-│   │   └── dashboard_repository.py
-│   │
-│   ├── models/                    # Pydantic request/response models
-│   │   ├── __init__.py
-│   │   ├── campaign.py            # Campaign-related DTOs
-│   │   ├── account.py             # Account-related DTOs
-│   │   ├── metrics.py             # Metrics-related DTOs
-│   │   ├── dashboard.py           # Dashboard-related DTOs
-│   │   └── common.py              # Shared models (pagination, errors)
-│   │
-│   └── core/                      # Core utilities
+│   └── features/                       # Feature modules
 │       ├── __init__.py
-│       ├── config.py              # Settings management
-│       ├── database.py            # Database connection
-│       └── exceptions.py          # Custom exceptions
+│       │
+│       └── google_ads/                 # Platform: Google Ads
+│           ├── __init__.py             # Combines all sub-feature routers
+│           │
+│           ├── overview/               # Sub-feature: Overview
+│           │   ├── __init__.py
+│           │   ├── router.py           # API endpoints
+│           │   ├── service.py          # Business logic
+│           │   ├── repository.py       # SQL queries
+│           │   └── models.py           # Pydantic DTOs
+│           │
+│           ├── campaigns/              # Sub-feature: Campaigns
+│           │   ├── __init__.py
+│           │   ├── router.py
+│           │   ├── service.py
+│           │   ├── repository.py
+│           │   └── models.py
+│           │
+│           └── keywords/               # Sub-feature: Keywords
+│               ├── __init__.py
+│               ├── router.py
+│               ├── service.py
+│               ├── repository.py
+│               └── models.py
 │
 └── tests/
     ├── __init__.py
     ├── conftest.py
-    ├── routers/
-    ├── services/
-    └── repositories/
+    └── features/
+        └── google_ads/
+            ├── overview/
+            ├── campaigns/
+            └── keywords/
 ```
 
 ---
 
 ## Layer Implementation Templates
 
-### 1. Models Layer (`app/models/`)
+### 1. Models Layer (`{feature}/models.py`)
 
-Models define request/response schemas using Pydantic. Follow these conventions:
+Models define request/response schemas using Pydantic.
 
-**File: `app/models/campaign.py`**
+**File: `app/features/google_ads/overview/models.py`**
 
 ```python
 """
-Campaign-related Pydantic models (DTOs).
+Google Ads Overview - Pydantic models (DTOs).
 """
+from typing import Optional
+from pydantic import BaseModel, Field
+
+
+class GoogleAdsOverviewResponse(BaseModel):
+    """Response model for Google Ads overview metrics."""
+    total_spend: float = Field(..., description="Total advertising spend")
+    total_conversions: float = Field(..., description="Total number of conversions")
+    total_revenue: float = Field(..., description="Total conversion value/revenue")
+    roas: float = Field(..., description="Return on Ad Spend (Revenue/Spend)")
+    ctr: float = Field(..., description="Click-Through Rate percentage")
+    cpc: float = Field(..., description="Cost Per Click")
+    avg_quality_score: Optional[float] = Field(None, description="Average Quality Score across keywords")
+
+    class Config:
+        from_attributes = True
+```
+
+**Common Model Patterns:**
+
+```python
 from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, Field
 
 
-# ============================================================================
-# BASE MODELS (shared fields)
-# ============================================================================
-
+# Base model with shared fields
 class CampaignBase(BaseModel):
     """Base campaign fields shared across models."""
     name: str = Field(..., min_length=1, max_length=255, description="Campaign name")
-    platform: str = Field(..., description="Platform (google_ads, meta, etc.)")
+    platform: str = Field(..., description="Platform code")
     status: str = Field(default="active", description="Campaign status")
 
 
-# ============================================================================
-# REQUEST MODELS (input)
-# ============================================================================
-
+# Request model for creation
 class CampaignCreate(CampaignBase):
     """Request model for creating a campaign."""
-    account_id: int = Field(..., gt=0, description="Associated account ID")
     budget: Optional[float] = Field(None, ge=0, description="Campaign budget")
 
 
+# Request model for updates (all fields optional)
 class CampaignUpdate(BaseModel):
-    """Request model for updating a campaign. All fields optional."""
+    """Request model for updating a campaign."""
     name: Optional[str] = Field(None, min_length=1, max_length=255)
     status: Optional[str] = None
     budget: Optional[float] = Field(None, ge=0)
 
 
-class CampaignFilter(BaseModel):
-    """Query parameters for filtering campaigns."""
-    platform: Optional[str] = None
-    status: Optional[str] = None
-    account_id: Optional[int] = None
-
-
-# ============================================================================
-# RESPONSE MODELS (output)
-# ============================================================================
-
+# Response model
 class CampaignResponse(CampaignBase):
     """Response model for a single campaign."""
     id: int
-    account_id: int
     budget: Optional[float] = None
     impressions: int = 0
     clicks: int = 0
     spend: float = 0.0
     created_at: datetime
-    updated_at: Optional[datetime] = None
 
     class Config:
-        from_attributes = True  # Enable ORM mode for dict unpacking
+        from_attributes = True
 
 
+# Paginated list response
 class CampaignListResponse(BaseModel):
     """Response model for paginated campaign list."""
     items: list[CampaignResponse]
@@ -210,407 +207,416 @@ class CampaignListResponse(BaseModel):
     has_next: bool
 ```
 
-**File: `app/models/common.py`**
-
-```python
-"""
-Shared/common Pydantic models.
-"""
-from typing import Generic, TypeVar, Optional
-from pydantic import BaseModel, Field
-
-T = TypeVar("T")
-
-
-class PaginationParams(BaseModel):
-    """Standard pagination parameters."""
-    page: int = Field(default=1, ge=1, description="Page number")
-    page_size: int = Field(default=20, ge=1, le=100, description="Items per page")
-
-
-class PaginatedResponse(BaseModel, Generic[T]):
-    """Generic paginated response wrapper."""
-    items: list[T]
-    total: int
-    page: int
-    page_size: int
-    has_next: bool
-
-
-class ErrorResponse(BaseModel):
-    """Standard error response."""
-    error: str
-    detail: Optional[str] = None
-    code: Optional[str] = None
-
-
-class SuccessResponse(BaseModel):
-    """Standard success response for operations."""
-    success: bool = True
-    message: str
-```
-
 ---
 
-### 2. Repository Layer (`app/repositories/`)
+### 2. Repository Layer (`{feature}/repository.py`)
 
-Repositories handle all data access. They receive SQL and call `execute_query()`.
+Repositories handle all data access using `execute_query()`.
 
-**File: `app/repositories/campaign_repository.py`**
+**File: `app/features/google_ads/overview/repository.py`**
 
 ```python
 """
-Campaign repository - Data access layer for campaigns.
+Google Ads Overview repository - Data access layer for overview metrics.
 """
+from datetime import date
 from typing import Optional
 from app.core.database import execute_query
-from app.models.campaign import CampaignFilter
 
 
-class CampaignRepository:
-    """Repository for campaign data access operations."""
+class GoogleAdsOverviewRepository:
+    """Repository for Google Ads overview data access operations."""
 
     @staticmethod
-    def get_all(
-        tenant_id: int,
-        filters: Optional[CampaignFilter] = None,
-        page: int = 1,
-        page_size: int = 20
-    ) -> tuple[list[dict], int]:
+    def get_overview_metrics(
+        date_from: Optional[date] = None,
+        date_to: Optional[date] = None
+    ) -> Optional[dict]:
         """
-        Fetch paginated campaigns for a tenant.
+        Fetch aggregated Google Ads overview metrics, optionally filtered by date range.
+
+        Args:
+            date_from: Optional start date for the metrics
+            date_to: Optional end date for the metrics
 
         Returns:
-            Tuple of (campaigns list, total count)
+            Dictionary with aggregated metrics or None if no data
         """
-        # Build WHERE conditions
-        conditions = ["tenant_id = %(tenant_id)s"]
-        params = {"tenant_id": tenant_id}
+        # Build date filter conditions
+        date_conditions = []
+        params = {}
 
-        if filters:
-            if filters.platform:
-                conditions.append("platform = %(platform)s")
-                params["platform"] = filters.platform
-            if filters.status:
-                conditions.append("status = %(status)s")
-                params["status"] = filters.status
-            if filters.account_id:
-                conditions.append("account_id = %(account_id)s")
-                params["account_id"] = filters.account_id
+        if date_from:
+            date_conditions.append("f.DATE_DAY >= %(date_from)s")
+            params["date_from"] = date_from.isoformat()
 
-        where_clause = " AND ".join(conditions)
-        offset = (page - 1) * page_size
+        if date_to:
+            date_conditions.append("f.DATE_DAY <= %(date_to)s")
+            params["date_to"] = date_to.isoformat()
 
-        # Get total count
-        count_query = f"""
-            SELECT COUNT(*) as total
-            FROM campaigns
-            WHERE {where_clause}
-        """
-        count_result = execute_query(count_query, params)
-        total = count_result[0]["TOTAL"] if count_result else 0
+        # Build the date filter clause
+        date_filter = ""
+        if date_conditions:
+            date_filter = "AND " + " AND ".join(date_conditions)
 
-        # Get paginated results
-        data_query = f"""
+        query = f"""
             SELECT
-                id,
-                account_id,
-                name,
-                platform,
-                status,
-                budget,
-                impressions,
-                clicks,
-                spend,
-                created_at,
-                updated_at
-            FROM campaigns
-            WHERE {where_clause}
-            ORDER BY created_at DESC
-            LIMIT %(limit)s OFFSET %(offset)s
+                perf.TOTAL_SPEND,
+                perf.TOTAL_CONVERSIONS,
+                perf.TOTAL_REVENUE,
+                perf.ROAS,
+                perf.CTR,
+                perf.CPC,
+                qs.AVG_QUALITY_SCORE
+            FROM (
+                SELECT
+                    SUM(f.SPEND) AS TOTAL_SPEND,
+                    SUM(f.CONVERSIONS) AS TOTAL_CONVERSIONS,
+                    SUM(f.CONVERSION_VALUE) AS TOTAL_REVENUE,
+                    CASE WHEN SUM(f.SPEND) > 0 THEN SUM(f.CONVERSION_VALUE) / SUM(f.SPEND) ELSE 0 END AS ROAS,
+                    CASE WHEN SUM(f.IMPRESSIONS) > 0 THEN (SUM(f.CLICKS) / SUM(f.IMPRESSIONS)) * 100 ELSE 0 END AS CTR,
+                    CASE WHEN SUM(f.CLICKS) > 0 THEN SUM(f.SPEND) / SUM(f.CLICKS) ELSE 0 END AS CPC
+                FROM CLIENT_RARE_SEEDS_DB.PUBLIC_ANALYTICS.FCT_CAMPAIGN_PERFORMANCE f
+                JOIN CLIENT_RARE_SEEDS_DB.PUBLIC_ANALYTICS.DIM_PLATFORM p ON f.PLATFORM = p.PLATFORM_CODE
+                WHERE p.PLATFORM_CODE = 'google_ads'
+                    {date_filter}
+            ) perf
+            CROSS JOIN (
+                SELECT AVG(k.QUALITY_SCORE) AS AVG_QUALITY_SCORE
+                FROM CLIENT_RARE_SEEDS_DB.PUBLIC_ANALYTICS.DIM_KEYWORD k
+                JOIN CLIENT_RARE_SEEDS_DB.PUBLIC_ANALYTICS.DIM_PLATFORM p ON k.PLATFORM = p.PLATFORM_CODE
+                WHERE p.PLATFORM_CODE = 'google_ads'
+                    AND k.QUALITY_SCORE IS NOT NULL
+                    AND k.IS_CURRENT = TRUE
+            ) qs
         """
-        params["limit"] = page_size
-        params["offset"] = offset
 
-        campaigns = execute_query(data_query, params)
-        return campaigns, total
-
-    @staticmethod
-    def get_by_id(campaign_id: int, tenant_id: int) -> Optional[dict]:
-        """Fetch a single campaign by ID."""
-        query = """
-            SELECT
-                id,
-                account_id,
-                name,
-                platform,
-                status,
-                budget,
-                impressions,
-                clicks,
-                spend,
-                created_at,
-                updated_at
-            FROM campaigns
-            WHERE id = %(campaign_id)s AND tenant_id = %(tenant_id)s
-        """
-        params = {"campaign_id": campaign_id, "tenant_id": tenant_id}
-        results = execute_query(query, params)
+        results = execute_query(query, params if params else None)
         return results[0] if results else None
-
-    @staticmethod
-    def get_metrics_summary(
-        tenant_id: int,
-        campaign_ids: Optional[list[int]] = None
-    ) -> list[dict]:
-        """Fetch aggregated metrics for campaigns."""
-        query = """
-            SELECT
-                campaign_id,
-                SUM(impressions) as total_impressions,
-                SUM(clicks) as total_clicks,
-                SUM(spend) as total_spend,
-                CASE WHEN SUM(impressions) > 0
-                     THEN SUM(clicks) / SUM(impressions) * 100
-                     ELSE 0 END as ctr
-            FROM campaign_metrics
-            WHERE tenant_id = %(tenant_id)s
-        """
-        params = {"tenant_id": tenant_id}
-
-        if campaign_ids:
-            query += " AND campaign_id IN (%(campaign_ids)s)"
-            params["campaign_ids"] = ",".join(map(str, campaign_ids))
-
-        query += " GROUP BY campaign_id"
-
-        return execute_query(query, params)
 
 
 # Singleton instance for dependency injection
-campaign_repository = CampaignRepository()
+google_ads_overview_repository = GoogleAdsOverviewRepository()
+```
+
+**Repository Patterns:**
+
+```python
+# Pagination pattern
+@staticmethod
+def get_all(
+    page: int = 1,
+    page_size: int = 20,
+    platform: Optional[str] = None
+) -> tuple[list[dict], int]:
+    """Fetch paginated results with total count."""
+    conditions = ["1=1"]
+    params = {}
+
+    if platform:
+        conditions.append("platform = %(platform)s")
+        params["platform"] = platform
+
+    where_clause = " AND ".join(conditions)
+    offset = (page - 1) * page_size
+
+    # Count query
+    count_query = f"""
+        SELECT COUNT(*) as TOTAL
+        FROM CLIENT_RARE_SEEDS_DB.PUBLIC_ANALYTICS.TABLE_NAME
+        WHERE {where_clause}
+    """
+    count_result = execute_query(count_query, params)
+    total = count_result[0]["TOTAL"] if count_result else 0
+
+    # Data query
+    data_query = f"""
+        SELECT id, name, platform, status
+        FROM CLIENT_RARE_SEEDS_DB.PUBLIC_ANALYTICS.TABLE_NAME
+        WHERE {where_clause}
+        ORDER BY created_at DESC
+        LIMIT %(limit)s OFFSET %(offset)s
+    """
+    params["limit"] = page_size
+    params["offset"] = offset
+
+    results = execute_query(data_query, params)
+    return results, total
+
+
+# Single record lookup
+@staticmethod
+def get_by_id(record_id: int) -> Optional[dict]:
+    """Fetch a single record by ID."""
+    query = """
+        SELECT id, name, platform, status
+        FROM CLIENT_RARE_SEEDS_DB.PUBLIC_ANALYTICS.TABLE_NAME
+        WHERE id = %(id)s
+    """
+    results = execute_query(query, {"id": record_id})
+    return results[0] if results else None
 ```
 
 ---
 
-### 3. Service Layer (`app/services/`)
+### 3. Service Layer (`{feature}/service.py`)
 
 Services contain business logic and orchestrate repository calls.
 
-**File: `app/services/campaign_service.py`**
+**File: `app/features/google_ads/overview/service.py`**
 
 ```python
 """
-Campaign service - Business logic layer for campaigns.
+Google Ads Overview service - Business logic layer for overview operations.
 """
+from datetime import date
 from typing import Optional
 from fastapi import HTTPException, status
 
-from app.repositories.campaign_repository import campaign_repository
-from app.models.campaign import (
-    CampaignCreate,
-    CampaignUpdate,
-    CampaignFilter,
-    CampaignResponse,
-    CampaignListResponse,
-)
+from .repository import google_ads_overview_repository
+from .models import GoogleAdsOverviewResponse
 
 
-class CampaignService:
-    """Service class for campaign business logic."""
+class GoogleAdsOverviewService:
+    """Service class for Google Ads overview business logic."""
 
-    def __init__(self, repository=campaign_repository):
+    def __init__(self, repository=google_ads_overview_repository):
         self.repository = repository
 
-    def get_campaigns(
+    def get_overview(
         self,
-        tenant_id: int,
-        filters: Optional[CampaignFilter] = None,
-        page: int = 1,
-        page_size: int = 20
-    ) -> CampaignListResponse:
+        date_from: Optional[date] = None,
+        date_to: Optional[date] = None
+    ) -> GoogleAdsOverviewResponse:
         """
-        Get paginated list of campaigns with optional filters.
+        Get Google Ads overview metrics, optionally filtered by date range.
 
-        Business rules:
-        - Only returns campaigns for the specified tenant
-        - Applies pagination with sensible defaults
-        """
-        campaigns, total = self.repository.get_all(
-            tenant_id=tenant_id,
-            filters=filters,
-            page=page,
-            page_size=page_size
-        )
+        Args:
+            date_from: Optional start date for the metrics
+            date_to: Optional end date for the metrics
 
-        # Transform database results to response models
-        items = [self._map_to_response(c) for c in campaigns]
-
-        return CampaignListResponse(
-            items=items,
-            total=total,
-            page=page,
-            page_size=page_size,
-            has_next=(page * page_size) < total
-        )
-
-    def get_campaign_by_id(
-        self,
-        campaign_id: int,
-        tenant_id: int
-    ) -> CampaignResponse:
-        """
-        Get a single campaign by ID.
+        Returns:
+            GoogleAdsOverviewResponse with aggregated metrics
 
         Raises:
-            HTTPException: 404 if campaign not found
+            HTTPException: 400 if date_from > date_to
+            HTTPException: 404 if no data found
         """
-        campaign = self.repository.get_by_id(campaign_id, tenant_id)
-
-        if not campaign:
+        # Validate date range if both dates are provided
+        if date_from and date_to and date_from > date_to:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Campaign with id {campaign_id} not found"
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="date_from must be less than or equal to date_to"
             )
 
-        return self._map_to_response(campaign)
+        # Fetch metrics from repository
+        metrics = self.repository.get_overview_metrics(date_from, date_to)
 
-    def get_campaign_performance(
-        self,
-        tenant_id: int,
-        campaign_ids: Optional[list[int]] = None
-    ) -> dict:
-        """
-        Get aggregated performance metrics for campaigns.
+        if not metrics:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"No Google Ads data found for date range {date_from} to {date_to}"
+            )
 
-        Business rules:
-        - Calculates CTR, CPC, CPM
-        - Returns zero-safe calculations
-        """
-        metrics = self.repository.get_metrics_summary(tenant_id, campaign_ids)
-
-        # Apply business logic: calculate derived metrics
-        for metric in metrics:
-            clicks = metric.get("TOTAL_CLICKS", 0) or 0
-            spend = metric.get("TOTAL_SPEND", 0) or 0
-
-            # Cost per click (avoid division by zero)
-            metric["cpc"] = spend / clicks if clicks > 0 else 0
-
-        return {"metrics": metrics}
+        # Map database result (uppercase keys from Snowflake) to response model
+        return self._map_to_response(metrics)
 
     @staticmethod
-    def _map_to_response(data: dict) -> CampaignResponse:
+    def _map_to_response(data: dict) -> GoogleAdsOverviewResponse:
         """Map database row (uppercase keys) to response model."""
-        return CampaignResponse(
-            id=data["ID"],
-            account_id=data["ACCOUNT_ID"],
-            name=data["NAME"],
-            platform=data["PLATFORM"],
-            status=data["STATUS"],
-            budget=data.get("BUDGET"),
-            impressions=data.get("IMPRESSIONS", 0),
-            clicks=data.get("CLICKS", 0),
-            spend=data.get("SPEND", 0.0),
-            created_at=data["CREATED_AT"],
-            updated_at=data.get("UPDATED_AT"),
+        return GoogleAdsOverviewResponse(
+            total_spend=float(data.get("TOTAL_SPEND") or 0),
+            total_conversions=float(data.get("TOTAL_CONVERSIONS") or 0),
+            total_revenue=float(data.get("TOTAL_REVENUE") or 0),
+            roas=float(data.get("ROAS") or 0),
+            ctr=float(data.get("CTR") or 0),
+            cpc=float(data.get("CPC") or 0),
+            avg_quality_score=float(data["AVG_QUALITY_SCORE"]) if data.get("AVG_QUALITY_SCORE") is not None else None
         )
 
 
 # Singleton instance for dependency injection
-campaign_service = CampaignService()
+google_ads_overview_service = GoogleAdsOverviewService()
+```
+
+**Service Patterns:**
+
+```python
+# Paginated list with business logic
+def get_items(
+    self,
+    page: int = 1,
+    page_size: int = 20,
+    platform: Optional[str] = None
+) -> ItemListResponse:
+    """Get paginated list with derived calculations."""
+    items, total = self.repository.get_all(
+        page=page,
+        page_size=page_size,
+        platform=platform
+    )
+
+    # Apply business logic transformations
+    response_items = [self._map_to_response(item) for item in items]
+
+    return ItemListResponse(
+        items=response_items,
+        total=total,
+        page=page,
+        page_size=page_size,
+        has_next=(page * page_size) < total
+    )
+
+
+# Single item lookup with 404 handling
+def get_by_id(self, item_id: int) -> ItemResponse:
+    """Get single item, raise 404 if not found."""
+    item = self.repository.get_by_id(item_id)
+
+    if not item:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Item with id {item_id} not found"
+        )
+
+    return self._map_to_response(item)
 ```
 
 ---
 
-### 4. Router Layer (`app/routers/`)
+### 4. Router Layer (`{feature}/router.py`)
 
 Routers define API endpoints and delegate to services.
 
-**File: `app/routers/campaigns.py`**
+**File: `app/features/google_ads/overview/router.py`**
 
 ```python
 """
-Campaign router - API endpoints for campaign operations.
+Google Ads Overview router - API endpoints for overview operations.
 """
+from datetime import date
 from typing import Optional
-from fastapi import APIRouter, Query, status
+from fastapi import APIRouter, Query
 
-from app.services.campaign_service import campaign_service
-from app.models.campaign import (
-    CampaignFilter,
-    CampaignResponse,
-    CampaignListResponse,
-)
+from .service import google_ads_overview_service
+from .models import GoogleAdsOverviewResponse
 
-router = APIRouter(prefix="/campaigns", tags=["Campaigns"])
+router = APIRouter()
 
 
 @router.get(
-    "",
-    response_model=CampaignListResponse,
-    summary="List all campaigns",
-    description="Retrieve a paginated list of campaigns with optional filters."
+    "/overview",
+    response_model=GoogleAdsOverviewResponse,
+    summary="Get Google Ads overview metrics",
+    description="Retrieve aggregated Google Ads performance metrics. Optionally filter by date range."
 )
-async def get_campaigns(
+async def get_google_ads_overview(
+    date_from: Optional[date] = Query(
+        default=None,
+        description="Start date for metrics (YYYY-MM-DD format). If not provided, no start date filter.",
+        example="2024-01-01"
+    ),
+    date_to: Optional[date] = Query(
+        default=None,
+        description="End date for metrics (YYYY-MM-DD format). If not provided, no end date filter.",
+        example="2024-12-31"
+    ),
+):
+    """
+    Get Google Ads overview metrics including:
+    - Total Spend
+    - Total Conversions
+    - Total Revenue
+    - ROAS (Return on Ad Spend)
+    - CTR (Click-Through Rate)
+    - CPC (Cost Per Click)
+    - Average Quality Score
+    """
+    return google_ads_overview_service.get_overview(
+        date_from=date_from,
+        date_to=date_to
+    )
+```
+
+**Router Patterns:**
+
+```python
+from typing import Optional
+from fastapi import APIRouter, Query, Path
+
+router = APIRouter()
+
+
+# List endpoint with pagination and filters
+@router.get(
+    "",
+    response_model=ItemListResponse,
+    summary="List all items",
+    description="Retrieve a paginated list of items with optional filters."
+)
+async def get_items(
     page: int = Query(default=1, ge=1, description="Page number"),
     page_size: int = Query(default=20, ge=1, le=100, description="Items per page"),
     platform: Optional[str] = Query(default=None, description="Filter by platform"),
     status: Optional[str] = Query(default=None, description="Filter by status"),
-    account_id: Optional[int] = Query(default=None, description="Filter by account"),
-    tenant_id: int = Query(..., description="Tenant ID"),
 ):
-    """Get paginated campaigns for the current tenant."""
-    filters = CampaignFilter(
-        platform=platform,
-        status=status,
-        account_id=account_id
-    )
-    return campaign_service.get_campaigns(
-        tenant_id=tenant_id,
-        filters=filters,
+    """Get paginated items."""
+    return item_service.get_items(
         page=page,
-        page_size=page_size
+        page_size=page_size,
+        platform=platform,
+        status=status
     )
 
 
+# Single item endpoint
 @router.get(
-    "/{campaign_id}",
-    response_model=CampaignResponse,
-    summary="Get campaign by ID",
-    description="Retrieve a single campaign by its ID."
+    "/{item_id}",
+    response_model=ItemResponse,
+    summary="Get item by ID",
+    description="Retrieve a single item by its ID."
 )
-async def get_campaign(
-    campaign_id: int,
-    tenant_id: int = Query(..., description="Tenant ID"),
+async def get_item(
+    item_id: int = Path(..., gt=0, description="Item ID"),
 ):
-    """Get a specific campaign by ID."""
-    return campaign_service.get_campaign_by_id(campaign_id, tenant_id)
-
-
-@router.get(
-    "/performance/summary",
-    summary="Get campaign performance metrics",
-    description="Retrieve aggregated performance metrics for campaigns."
-)
-async def get_campaign_performance(
-    campaign_ids: Optional[str] = Query(
-        default=None,
-        description="Comma-separated campaign IDs (optional)"
-    ),
-    tenant_id: int = Query(..., description="Tenant ID"),
-):
-    """Get performance metrics for campaigns."""
-    ids = None
-    if campaign_ids:
-        ids = [int(id.strip()) for id in campaign_ids.split(",")]
-
-    return campaign_service.get_campaign_performance(tenant_id, ids)
+    """Get a specific item by ID."""
+    return item_service.get_by_id(item_id)
 ```
 
 ---
 
-### 5. Register Router in Main (`app/main.py`)
+### 5. Feature Module (`{platform}/__init__.py`)
+
+Combines all sub-feature routers into a single platform router.
+
+**File: `app/features/google_ads/__init__.py`**
+
+```python
+"""
+Google Ads feature module - Combines all Google Ads sub-features.
+"""
+from fastapi import APIRouter
+
+from .overview.router import router as overview_router
+# from .campaigns.router import router as campaigns_router
+# from .keywords.router import router as keywords_router
+
+# Main router for Google Ads feature
+router = APIRouter(prefix="/google-ads", tags=["Google Ads"])
+
+# Include all sub-feature routers
+router.include_router(overview_router)
+# router.include_router(campaigns_router)
+# router.include_router(keywords_router)
+
+__all__ = ["router"]
+```
+
+---
+
+### 6. Main Application (`app/main.py`)
+
+Registers all feature routers.
 
 **File: `app/main.py`**
 
@@ -621,8 +627,9 @@ Marketing IQ - FastAPI Application
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-# Import routers
-from app.routers import campaigns, accounts, metrics, dashboards
+# Import feature routers
+from app.features.google_ads import router as google_ads_router
+# from app.features.meta import router as meta_router
 
 # Create FastAPI app
 app = FastAPI(
@@ -654,141 +661,201 @@ async def health_check():
     return {"status": "healthy"}
 
 
-# Include routers with /api/v1 prefix
-app.include_router(campaigns.router, prefix="/api/v1")
-app.include_router(accounts.router, prefix="/api/v1")
-app.include_router(metrics.router, prefix="/api/v1")
-app.include_router(dashboards.router, prefix="/api/v1")
+# Include feature routers with /api/v1 prefix
+app.include_router(google_ads_router, prefix="/api/v1")
+# app.include_router(meta_router, prefix="/api/v1")
+```
+
+---
+
+## Import Patterns
+
+### Within a Sub-Feature (Relative Imports)
+
+```python
+# In service.py - import from same feature folder
+from .repository import google_ads_overview_repository
+from .models import GoogleAdsOverviewResponse
+
+# In router.py - import from same feature folder
+from .service import google_ads_overview_service
+from .models import GoogleAdsOverviewResponse
+```
+
+### From Core Modules (Absolute Imports)
+
+```python
+# In repository.py - import database utilities
+from app.core.database import execute_query
+
+# In service.py - import exceptions
+from fastapi import HTTPException, status
+```
+
+### In Feature __init__.py
+
+```python
+# Import sub-feature routers
+from .overview.router import router as overview_router
+from .campaigns.router import router as campaigns_router
+```
+
+---
+
+## Database Conventions
+
+### Snowflake Table References
+
+Always use fully qualified names: `DATABASE.SCHEMA.TABLE`
+
+```sql
+-- Correct
+SELECT * FROM CLIENT_RARE_SEEDS_DB.PUBLIC_ANALYTICS.FCT_CAMPAIGN_PERFORMANCE
+
+-- Avoid (depends on session context)
+SELECT * FROM FCT_CAMPAIGN_PERFORMANCE
+```
+
+### Key Tables in PUBLIC_ANALYTICS Schema
+
+| Table | Type | Description |
+|-------|------|-------------|
+| `FCT_CAMPAIGN_PERFORMANCE` | Fact | Daily campaign metrics (spend, clicks, impressions, conversions) |
+| `DIM_PLATFORM` | Dimension | Platform definitions (google_ads, meta, etc.) |
+| `DIM_CAMPAIGN` | Dimension | Campaign details |
+| `DIM_KEYWORD` | Dimension | Keyword details with quality scores |
+| `DIM_AD_GROUP` | Dimension | Ad group details |
+
+### Snowflake Column Naming
+
+Snowflake returns UPPERCASE column names. Map in service layer:
+
+```python
+# Database returns: {"TOTAL_SPEND": 1000, "CTR": 2.5}
+# Map to response model with lowercase:
+return Response(
+    total_spend=float(data.get("TOTAL_SPEND") or 0),
+    ctr=float(data.get("CTR") or 0)
+)
+```
+
+### Parameterized Queries (SQL Injection Prevention)
+
+```python
+# GOOD - Parameterized
+query = "SELECT * FROM table WHERE id = %(id)s AND date >= %(date)s"
+execute_query(query, {"id": campaign_id, "date": date_from.isoformat()})
+
+# BAD - SQL Injection vulnerability!
+query = f"SELECT * FROM table WHERE id = {campaign_id}"
 ```
 
 ---
 
 ## Naming Conventions
 
-| Layer | File Naming | Class Naming | Function Naming |
+| Layer | File Naming | Class Naming | Instance Naming |
 |-------|-------------|--------------|-----------------|
-| **Models** | `{entity}.py` | `{Entity}Response`, `{Entity}Create` | N/A |
-| **Repository** | `{entity}_repository.py` | `{Entity}Repository` | `get_all()`, `get_by_id()` |
-| **Service** | `{entity}_service.py` | `{Entity}Service` | `get_{entity}s()`, `create_{entity}()` |
-| **Router** | `{entity}s.py` (plural) | N/A | `get_{entity}s()`, `get_{entity}()` |
+| **Models** | `models.py` | `{Feature}Response`, `{Feature}Create` | N/A |
+| **Repository** | `repository.py` | `{Feature}Repository` | `{feature}_repository` |
+| **Service** | `service.py` | `{Feature}Service` | `{feature}_service` |
+| **Router** | `router.py` | N/A | `router` |
+
+### API Route Naming
+
+| HTTP Method | Route Pattern | Description |
+|-------------|---------------|-------------|
+| GET | `/items` | List items (paginated) |
+| GET | `/items/{id}` | Get single item |
+| POST | `/items` | Create item |
+| PUT | `/items/{id}` | Update item |
+| DELETE | `/items/{id}` | Delete item |
+| GET | `/items/summary` | Get aggregated data |
 
 ---
 
 ## Best Practices
 
-### 1. Tenant Context
+### 1. Optional Query Parameters
 
-Pass tenant ID as a required query parameter for multi-tenant isolation:
+Make date filters optional with sensible behavior:
 
 ```python
-from fastapi import Query
-
-@router.get("/items")
-async def get_items(tenant_id: int = Query(..., description="Tenant ID")):
+@router.get("/metrics")
+async def get_metrics(
+    date_from: Optional[date] = Query(
+        default=None,
+        description="Start date (YYYY-MM-DD). If not provided, no start filter.",
+        example="2024-01-01"
+    ),
+    date_to: Optional[date] = Query(
+        default=None,
+        description="End date (YYYY-MM-DD). If not provided, no end filter.",
+        example="2024-12-31"
+    ),
+):
     pass
 ```
 
-### 2. SQL Injection Prevention
-
-ALWAYS use parameterized queries:
-
-```python
-# GOOD - Parameterized
-query = "SELECT * FROM campaigns WHERE id = %(id)s"
-execute_query(query, {"id": campaign_id})
-
-# BAD - SQL Injection vulnerability!
-query = f"SELECT * FROM campaigns WHERE id = {campaign_id}"
-```
-
-### 3. Error Handling
+### 2. Error Handling
 
 Use HTTPException with appropriate status codes:
 
 ```python
 from fastapi import HTTPException, status
 
+# 400 - Bad Request (validation errors)
+if date_from and date_to and date_from > date_to:
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="date_from must be less than or equal to date_to"
+    )
+
 # 404 - Not Found
-raise HTTPException(
-    status_code=status.HTTP_404_NOT_FOUND,
-    detail="Campaign not found"
-)
-
-# 400 - Bad Request
-raise HTTPException(
-    status_code=status.HTTP_400_BAD_REQUEST,
-    detail="Invalid date range"
-)
-
-# 403 - Forbidden
-raise HTTPException(
-    status_code=status.HTTP_403_FORBIDDEN,
-    detail="Access denied to this resource"
-)
+if not data:
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail=f"No data found for the specified criteria"
+    )
 ```
 
-### 4. Snowflake Column Naming
+### 3. Null-Safe Calculations
 
-Snowflake returns uppercase column names. Handle in service layer:
+Handle division by zero and null values:
 
 ```python
-# Database returns: {"ID": 1, "NAME": "Campaign A"}
-# Map to response model:
-CampaignResponse(
-    id=data["ID"],
-    name=data["NAME"]
-)
+# In SQL
+CASE WHEN SUM(spend) > 0 THEN SUM(revenue) / SUM(spend) ELSE 0 END AS roas
+
+# In Python mapping
+total_spend=float(data.get("TOTAL_SPEND") or 0),
+avg_score=float(data["AVG_SCORE"]) if data.get("AVG_SCORE") is not None else None
 ```
 
-### 5. Pagination Pattern
+### 4. Response Model Validation
 
-Always implement pagination for list endpoints:
+Always specify `response_model` for automatic validation and documentation:
 
 ```python
-@router.get("/items")
-async def get_items(
-    page: int = Query(default=1, ge=1),
-    page_size: int = Query(default=20, ge=1, le=100),
-):
-    offset = (page - 1) * page_size
-    # Use LIMIT/OFFSET in SQL
+@router.get("/overview", response_model=OverviewResponse)
+async def get_overview():
+    pass  # Response automatically validated against OverviewResponse
 ```
 
-### 6. Response Model Validation
+### 5. Singleton Pattern for DI
 
-Always specify `response_model` on endpoints for automatic validation:
-
-```python
-@router.get("/campaigns", response_model=CampaignListResponse)
-async def get_campaigns():
-    pass  # Response automatically validated
-```
-
-### 7. Logging
-
-Add logging for debugging and monitoring:
+Use singleton instances for easy testing:
 
 ```python
-import logging
+# In repository.py
+google_ads_overview_repository = GoogleAdsOverviewRepository()
 
-logger = logging.getLogger(__name__)
+# In service.py
+class GoogleAdsOverviewService:
+    def __init__(self, repository=google_ads_overview_repository):
+        self.repository = repository
 
-class CampaignService:
-    def get_campaigns(self, tenant_id: int):
-        logger.info(f"Fetching campaigns for tenant {tenant_id}")
-        # ...
-```
-
-### 8. Type Hints
-
-Always use type hints for better code quality:
-
-```python
-def get_by_id(self, campaign_id: int, tenant_id: int) -> Optional[dict]:
-    pass
-
-def get_campaigns(self, filters: CampaignFilter) -> CampaignListResponse:
-    pass
+google_ads_overview_service = GoogleAdsOverviewService()
 ```
 
 ---
@@ -798,13 +865,14 @@ def get_campaigns(self, filters: CampaignFilter) -> CampaignListResponse:
 ### Unit Test Structure
 
 ```python
-# tests/services/test_campaign_service.py
+# tests/features/google_ads/overview/test_service.py
 import pytest
-from unittest.mock import Mock, patch
-from app.services.campaign_service import CampaignService
+from unittest.mock import Mock
+from fastapi import HTTPException
+from app.features.google_ads.overview.service import GoogleAdsOverviewService
 
 
-class TestCampaignService:
+class TestGoogleAdsOverviewService:
 
     @pytest.fixture
     def mock_repository(self):
@@ -812,57 +880,121 @@ class TestCampaignService:
 
     @pytest.fixture
     def service(self, mock_repository):
-        return CampaignService(repository=mock_repository)
+        return GoogleAdsOverviewService(repository=mock_repository)
 
-    def test_get_campaigns_returns_list(self, service, mock_repository):
+    def test_get_overview_returns_metrics(self, service, mock_repository):
         # Arrange
-        mock_repository.get_all.return_value = ([{"ID": 1, "NAME": "Test"}], 1)
+        mock_repository.get_overview_metrics.return_value = {
+            "TOTAL_SPEND": 1000.0,
+            "TOTAL_CONVERSIONS": 50,
+            "TOTAL_REVENUE": 5000.0,
+            "ROAS": 5.0,
+            "CTR": 2.5,
+            "CPC": 1.5,
+            "AVG_QUALITY_SCORE": 7.5
+        }
 
         # Act
-        result = service.get_campaigns(tenant_id=1)
+        result = service.get_overview()
 
         # Assert
-        assert len(result.items) == 1
-        mock_repository.get_all.assert_called_once()
+        assert result.total_spend == 1000.0
+        assert result.roas == 5.0
+        mock_repository.get_overview_metrics.assert_called_once()
 
-    def test_get_campaign_by_id_not_found_raises_404(self, service, mock_repository):
+    def test_get_overview_invalid_date_range_raises_400(self, service):
+        # Act & Assert
+        with pytest.raises(HTTPException) as exc_info:
+            service.get_overview(
+                date_from=date(2024, 12, 31),
+                date_to=date(2024, 1, 1)
+            )
+
+        assert exc_info.value.status_code == 400
+
+    def test_get_overview_no_data_raises_404(self, service, mock_repository):
         # Arrange
-        mock_repository.get_by_id.return_value = None
+        mock_repository.get_overview_metrics.return_value = None
 
         # Act & Assert
         with pytest.raises(HTTPException) as exc_info:
-            service.get_campaign_by_id(999, tenant_id=1)
+            service.get_overview()
 
         assert exc_info.value.status_code == 404
 ```
 
 ---
 
-## Checklist for New API Implementation
+## Checklist for New Sub-Feature
 
-When implementing a new API endpoint, follow this checklist:
+When implementing a new sub-feature (e.g., `campaigns` under `google_ads`):
 
-- [ ] **Models**: Create request/response Pydantic models in `app/models/{entity}.py`
-- [ ] **Repository**: Create data access class in `app/repositories/{entity}_repository.py`
-- [ ] **Service**: Create business logic class in `app/services/{entity}_service.py`
-- [ ] **Router**: Create API routes in `app/routers/{entity}s.py`
-- [ ] **Main**: Register router in `app/main.py` with proper prefix
-- [ ] **Tests**: Add unit tests for service and repository layers
-- [ ] **Validation**: Ensure all inputs are validated via Pydantic
-- [ ] **Pagination**: Implement pagination for list endpoints
-- [ ] **Error Handling**: Use HTTPException with proper status codes
-- [ ] **SQL Safety**: Use parameterized queries (never string formatting)
-- [ ] **Multi-tenancy**: Always filter by `tenant_id`
+### 1. Create Feature Folder
+```
+app/features/google_ads/campaigns/
+├── __init__.py
+├── models.py
+├── repository.py
+├── service.py
+└── router.py
+```
+
+### 2. Implementation Order
+- [ ] `models.py` - Define request/response Pydantic models
+- [ ] `repository.py` - Implement data access with SQL queries
+- [ ] `service.py` - Implement business logic and validation
+- [ ] `router.py` - Define API endpoints
+- [ ] `__init__.py` - Export router (usually just empty or `from .router import router`)
+
+### 3. Register Router
+Update `app/features/google_ads/__init__.py`:
+```python
+from .campaigns.router import router as campaigns_router
+router.include_router(campaigns_router)
+```
+
+### 4. Quality Checks
+- [ ] All inputs validated via Pydantic
+- [ ] Parameterized SQL queries (no f-strings with user input)
+- [ ] HTTPException with proper status codes
+- [ ] response_model on all endpoints
+- [ ] Optional filters handled correctly
+- [ ] Null-safe calculations in SQL and Python
+- [ ] Type hints on all functions
 
 ---
 
-## Quick Reference: File Creation Order
+## Quick Reference: Adding New Platform
 
-When adding a new entity (e.g., "accounts"):
+To add a new platform (e.g., `meta`):
 
-1. `app/models/account.py` - Define DTOs
-2. `app/repositories/account_repository.py` - Data access
-3. `app/services/account_service.py` - Business logic
-4. `app/routers/accounts.py` - API endpoints
-5. Update `app/main.py` - Register router
-6. `tests/services/test_account_service.py` - Tests
+1. Create platform folder:
+   ```
+   app/features/meta/
+   ├── __init__.py
+   └── overview/
+       ├── __init__.py
+       ├── models.py
+       ├── repository.py
+       ├── service.py
+       └── router.py
+   ```
+
+2. Create platform router (`app/features/meta/__init__.py`):
+   ```python
+   from fastapi import APIRouter
+   from .overview.router import router as overview_router
+
+   router = APIRouter(prefix="/meta", tags=["Meta"])
+   router.include_router(overview_router)
+
+   __all__ = ["router"]
+   ```
+
+3. Register in `app/main.py`:
+   ```python
+   from app.features.meta import router as meta_router
+   app.include_router(meta_router, prefix="/api/v1")
+   ```
+
+4. API will be available at: `GET /api/v1/meta/overview`
