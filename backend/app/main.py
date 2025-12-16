@@ -25,7 +25,6 @@ app.add_middleware(
 
 @app.get("/")
 async def root():
-    """Root endpoint"""
     return {"message": "Marketing IQ API", "version": "1.0.0"}
 
 
