@@ -40,6 +40,8 @@ sources:
         description: "Daily keyword performance metrics"
       - name: search_term_stats
         description: "Daily search term performance metrics"
+      - name: search_keyword_stats
+        description: "Daily keyword search metrics with impression share data"
 
       # Bidding
       - name: campaign_bidding_strategy_history
@@ -108,6 +110,14 @@ sources:
         description: "Performance metrics by device type"
       - name: delivery_platform
         description: "Performance metrics by platform (Facebook, Instagram, etc.)"
+      - name: delivery_platform_and_device
+        description: "Performance metrics by device and platform combined"
+
+      # Actions (Conversions)
+      - name: basic_campaign_actions
+        description: "Campaign-level conversion actions (purchase counts)"
+      - name: basic_ad_action_values
+        description: "Ad-level conversion values (revenue)"
 
   # ============================================
   # GA4 (Google Analytics 4) SOURCES

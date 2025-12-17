@@ -1,0 +1,11 @@
+
+    
+    
+
+
+
+select email_flow_performance_sk
+from CLIENT_RARE_SEEDS_DB.PUBLIC_analytics.fct_email_flow
+where email_flow_performance_sk is null
+
+

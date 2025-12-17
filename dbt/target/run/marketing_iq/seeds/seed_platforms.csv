@@ -1,0 +1,12 @@
+
+    
+    
+    truncate table "CLIENT_RARE_SEEDS_DB"."PUBLIC_ANALYTICS"."SEED_PLATFORMS";
+    -- dbt seed --
+    
+            insert into CLIENT_RARE_SEEDS_DB.PUBLIC_analytics.seed_platforms (platform_code, platform_name, platform_display_name, is_advertising, is_analytics, is_email) values
+            (%s,%s,%s,%s,%s,%s),(%s,%s,%s,%s,%s,%s),(%s,%s,%s,%s,%s,%s),(%s,%s,%s,%s,%s,%s),(%s,%s,%s,%s,%s,%s)
+        
+
+;
+  
