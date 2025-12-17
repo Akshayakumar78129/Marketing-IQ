@@ -1,5 +1,8 @@
+# Claude
 .claude/
-.mcp.json# Python
+.mcp.json
+
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
