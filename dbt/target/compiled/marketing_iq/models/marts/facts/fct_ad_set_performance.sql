@@ -1,0 +1,63 @@
+
+
+/*
+    Ad Set Daily Performance Fact Table (Facebook)
+    Grain: Ad Set × Date
+    Source: FACEBOOK_ADS.BASIC_AD_SET
+*/
+
+with ad_set_stats as (
+    select
+        date as date_day,
+        adset_id::varchar as ad_set_id,
+        account_id::varchar as account_id,
+        adset_name as ad_set_name,
+        campaign_name,
+        impressions,
+        reach,
+        inline_link_clicks as clicks,
+        spend,
+        cpc,
+        cpm,
+        ctr,
+        frequency,
+        _fivetran_synced as last_synced
+    from CLIENT_RARE_SEEDS_DB.META_ADS.basic_ad_set
+    
+    where _fivetran_synced > (select max(last_synced) from CLIENT_RARE_SEEDS_DB.PUBLIC_analytics.fct_ad_set_performance)
+    
+)
+
+select
+    md5(cast(coalesce(cast(date_day as TEXT), '_dbt_utils_surrogate_key_null_') || '-' || coalesce(cast(ad_set_id as TEXT), '_dbt_utils_surrogate_key_null_') as TEXT)) as ad_set_performance_sk,
+    'meta' as platform,
+    date_day,
+    ad_set_id,
+    account_id,
+    ad_set_name,
+    campaign_name,
+
+    -- Metrics
+    impressions,
+    reach,
+    clicks,
+    spend,
+    frequency,
+
+    -- Provided metrics
+    cpc,
+    cpm,
+    ctr,
+
+    -- Calculated metrics (backup if provided are null)
+    case
+        when ctr is null and impressions > 0 then clicks::float / impressions
+        else ctr
+    end as calculated_ctr,
+    case
+        when cpc is null and clicks > 0 then spend / clicks
+        else cpc
+    end as calculated_cpc,
+
+    last_synced
+from ad_set_stats

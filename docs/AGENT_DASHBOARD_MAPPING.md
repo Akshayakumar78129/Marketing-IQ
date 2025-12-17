@@ -105,8 +105,8 @@
 | Device Type |
 | Country/Region |
 | Time on Page |
-| Bounce Rate |
-| Scroll Depth % |
+| Engagement Rate |
+| Non-Engagement Rate (Bounce Proxy) |
 | Entrance Page |
 | Referrer / Traffic Source |
 | Page Conversion Rate |
@@ -125,7 +125,7 @@
 | Graph | Type | Description |
 |-------|------|-------------|
 | Top Converting Pages | Bar Chart | Pages by submissions |
-| Page Engagement | Multi-Line Chart | Bounce rate vs conversion rate |
+| Page Engagement | Multi-Line Chart | Engagement rate vs conversion rate |
 | All Pages Table | Data Table | Sortable page listing |
 | Geographic Heatmap | Map | Users by location |
 | Device Breakdown | Donut Chart | Device distribution |
@@ -306,7 +306,7 @@
 | Sessions | GA4 | Total sessions count |
 | Engagement Rate | GA4 | Engaged sessions / total sessions |
 | Avg Session Duration | GA4 | Average time per session |
-| Bounce Rate | GA4 | Single-page session rate |
+| Non-Engagement Rate | GA4 | Proxy for bounce rate (1 - engagement_rate) |
 | Page Views | GA4 | Total page views |
 | Conversions (Key Events) | GA4 | Total conversion events |
 | Conversion Rate | GA4 | Conversions / sessions |

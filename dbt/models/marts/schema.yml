@@ -508,3 +508,321 @@ models:
         data_tests:
           - unique
           - not_null
+
+  # --- Order & Transaction Facts ---
+  - name: fct_order_details
+    description: "Transaction-level order data with value distribution and segmentation"
+    columns:
+      - name: order_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+      - name: order_value_segment
+        description: "Order value bucket (High/Medium/Low)"
+        data_tests:
+          - not_null
+
+  - name: fct_regional_revenue
+    description: "Revenue aggregated by customer geography (country, region, city)"
+    columns:
+      - name: regional_revenue_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+      - name: country
+        description: "Normalized country name"
+        data_tests:
+          - not_null
+
+  - name: fct_refunds
+    description: "Refunded and cancelled order tracking"
+    columns:
+      - name: refund_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+      - name: event_type
+        description: "Type of event (refund or cancellation)"
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['refund', 'cancellation']
+
+  - name: fct_customer_journey
+    description: "Customer funnel events: View -> Cart -> Checkout -> Order -> Fulfill"
+    columns:
+      - name: journey_event_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+      - name: funnel_stage
+        description: "Stage in customer journey funnel"
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['awareness', 'consideration', 'intent', 'purchase', 'fulfillment', 'refund']
+
+  # --- GA4 Device & Tech Facts ---
+  - name: fct_ga4_device_browser
+    description: "GA4 traffic metrics by device category, browser, and platform"
+    columns:
+      - name: device_browser_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+      - name: dimension_type
+        description: "Type of dimension (device, browser, platform)"
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['device', 'browser', 'platform']
+
+  - name: fct_ga4_geo
+    description: "GA4 traffic metrics by country, region, and city"
+    columns:
+      - name: ga4_geo_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+      - name: geo_level
+        description: "Geographic granularity level"
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['country', 'region', 'city']
+
+  # --- Meta Ads Device Performance ---
+  - name: fct_meta_device_performance
+    description: "Meta Ads performance metrics by device platform and publisher platform"
+    columns:
+      - name: device_performance_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+      - name: device_platform
+        description: "Device platform (mobile_app, mobile_web, desktop)"
+        data_tests:
+          - not_null
+      - name: publisher_platform
+        description: "Publisher platform (facebook, instagram, audience_network, messenger)"
+        data_tests:
+          - not_null
+
+  # --- Customer Metrics (CAC, Retention, Repeat Rate) ---
+  - name: fct_customer_metrics
+    description: "Monthly cohort-based customer acquisition, retention, and CAC metrics"
+    columns:
+      - name: customer_metrics_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+      - name: cohort_month
+        description: "Month of customer's first purchase"
+        data_tests:
+          - unique
+          - not_null
+      - name: new_customers
+        description: "Number of new customers acquired in this cohort"
+        data_tests:
+          - not_null
+      - name: repeat_purchase_rate
+        description: "Percentage of customers who made repeat purchases"
+      - name: cac
+        description: "Customer Acquisition Cost (total ad spend / new customers)"
+      - name: retention_rate_30d
+        description: "Percentage of customers who returned within 30 days"
+      - name: retention_rate_60d
+        description: "Percentage of customers who returned within 60 days"
+      - name: retention_rate_90d
+        description: "Percentage of customers who returned within 90 days"
+
+  # --- Budget Utilization ---
+  - name: fct_budget_utilization
+    description: "Daily budget vs actual spend tracking for Google Ads campaigns"
+    columns:
+      - name: budget_utilization_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+      - name: platform
+        description: "Platform (google_ads)"
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['google_ads']
+      - name: utilization_pct
+        description: "Percentage of daily budget utilized"
+      - name: is_overspend
+        description: "Flag indicating if daily spend exceeded budget"
+      - name: is_underspend
+        description: "Flag indicating if daily spend was less than 80% of budget"
+      - name: utilization_category
+        description: "Budget utilization category"
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['No Budget Set', 'Significantly Overspent (>120%)', 'Overspent (100-120%)', 'On Track (80-100%)', 'Underspent (50-80%)', 'Significantly Underspent (<50%)']
+
+  # --- Form Funnel ---
+  - name: fct_form_funnel
+    description: "Daily form funnel metrics from Klaviyo (view -> submit -> complete)"
+    columns:
+      - name: form_funnel_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+      - name: platform
+        description: "Platform (klaviyo)"
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['klaviyo']
+      - name: form_views
+        description: "Total form view events"
+        data_tests:
+          - not_null
+      - name: form_submissions
+        description: "Total form submission events"
+        data_tests:
+          - not_null
+      - name: form_completions
+        description: "Total form completion events"
+        data_tests:
+          - not_null
+      - name: view_to_submit_rate
+        description: "Conversion rate from view to submit (%)"
+      - name: overall_conversion_rate
+        description: "Conversion rate from view to complete (%)"
+      - name: performance_category
+        description: "Performance category based on conversion rate"
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['No Activity', 'Excellent (10%+)', 'Good (5-10%)', 'Average (2-5%)', 'Needs Improvement (<2%)']
+
+  # --- Keyword Competitive Metrics ---
+  - name: fct_keyword_competitive
+    description: "Google Ads keyword competitive position metrics (impression share)"
+    columns:
+      - name: keyword_competitive_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+      - name: platform
+        description: "Platform (google_ads)"
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['google_ads']
+      - name: top_impression_percentage
+        description: "Percentage of impressions shown in top position (above organic results)"
+      - name: absolute_top_impression_percentage
+        description: "Percentage of impressions shown in absolute top position (first ad)"
+      - name: position_category
+        description: "Competitive position category based on impression share"
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['Dominant (50%+ Absolute Top)', 'Strong (25-50% Absolute Top)', 'Competitive (50%+ Top)', 'Moderate (25-50% Top)', 'Weak (<25% Top)', 'No Position Data']
+
+  # --- GA4 Sessions (Total Sessions + Quality) ---
+  - name: fct_ga4_sessions
+    description: "GA4 session metrics with total sessions (not just engaged) and quality scores"
+    columns:
+      - name: ga4_session_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+      - name: platform
+        description: "Platform (ga4)"
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['ga4']
+      - name: total_sessions
+        description: "Total sessions (all sessions, not just engaged)"
+        data_tests:
+          - not_null
+      - name: engaged_sessions
+        description: "Number of engaged sessions"
+        data_tests:
+          - not_null
+      - name: engagement_rate_pct
+        description: "Percentage of sessions that were engaged"
+      - name: bounce_proxy_pct
+        description: "Proxy for bounce rate (1 - engagement_rate)"
+      - name: session_quality_score
+        description: "Composite session quality score (0-100)"
+      - name: session_quality_category
+        description: "Session quality category"
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['High Quality', 'Medium Quality', 'Low Quality', 'Very Low Quality']
+      - name: traffic_channel
+        description: "Traffic channel classification"
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['Organic Search', 'Paid Search', 'Email', 'Social', 'Referral', 'Direct', 'Display', 'Affiliate', 'Other']
+
+  # --- Email Health & Deliverability ---
+  - name: fct_email_health
+    description: "Klaviyo email deliverability and list health metrics"
+    columns:
+      - name: email_health_sk
+        description: "Surrogate key"
+        data_tests:
+          - unique
+          - not_null
+      - name: platform
+        description: "Platform (klaviyo)"
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['klaviyo']
+      - name: emails_delivered
+        description: "Number of emails successfully delivered"
+        data_tests:
+          - not_null
+      - name: emails_bounced
+        description: "Number of bounced emails"
+        data_tests:
+          - not_null
+      - name: bounce_rate_pct
+        description: "Email bounce rate percentage"
+      - name: unsubscribe_rate_pct
+        description: "Unsubscribe rate percentage"
+      - name: spam_rate_pct
+        description: "Spam complaint rate percentage"
+      - name: list_health_score
+        description: "Overall list health score (0-100, higher is better)"
+      - name: health_category
+        description: "Email health category"
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['No Activity', 'Critical (5%+ Bounce)', 'Warning (2-5% Bounce)', 'Spam Alert (>0.1%)', 'List Shrinking', 'Healthy']
+      - name: deliverability_score
+        description: "Technical deliverability score (0-100)"

@@ -1,0 +1,11 @@
+
+    
+    
+
+
+
+select search_term_sk
+from CLIENT_RARE_SEEDS_DB.PUBLIC_analytics.fct_search_term
+where search_term_sk is null
+
+

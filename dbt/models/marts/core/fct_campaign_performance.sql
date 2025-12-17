@@ -71,6 +71,29 @@ facebook_ads_campaign_info as (
     from {{ source('meta_ads', 'campaign_history') }}
 ),
 
+-- Meta campaign-level conversions (purchase counts)
+meta_campaign_conversions as (
+    select
+        campaign_id::varchar as campaign_id,
+        date as date_day,
+        sum(case when action_type = 'purchase' then value else 0 end) as conversions
+    from {{ source('meta_ads', 'basic_campaign_actions') }}
+    where action_type = 'purchase'
+    group by campaign_id, date
+),
+
+-- Meta conversion values (revenue) - aggregated from ad level to campaign level
+meta_ad_conversion_values as (
+    select
+        a.campaign_id::varchar as campaign_id,
+        v.date as date_day,
+        sum(v.value) as conversion_value
+    from {{ source('meta_ads', 'basic_ad_action_values') }} v
+    left join {{ source('meta_ads', 'ad_history') }} a on v.ad_id = a.id
+    where v.action_type = 'purchase'
+    group by a.campaign_id, v.date
+),
+
 facebook_ads_stats as (
     select
         b.date as date_day,
@@ -99,12 +122,16 @@ facebook_ads as (
         s.impressions,
         s.clicks,
         s.spend,
-        null as conversions,
-        null as conversion_value,
+        conv.conversions,
+        cval.conversion_value,
         null as view_through_conversions,
         s.last_synced
     from facebook_ads_stats s
     left join facebook_ads_campaign_info c on s.campaign_id = c.campaign_id
+    left join meta_campaign_conversions conv
+        on s.campaign_id = conv.campaign_id and s.date_day = conv.date_day
+    left join meta_ad_conversion_values cval
+        on s.campaign_id = cval.campaign_id and s.date_day = cval.date_day
 ),
 
 combined as (
