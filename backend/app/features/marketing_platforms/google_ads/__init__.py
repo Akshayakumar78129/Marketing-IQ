@@ -13,7 +13,7 @@ from .keyword_performance.router import router as keyword_performance_router
 from .top_keywords.router import router as top_keywords_router
 
 # Main router for Google Ads feature
-router = APIRouter(prefix="/google-ads", tags=["Google Ads"])
+router = APIRouter(prefix="/google-ads", tags=["Marketing Platforms > Google Ads"])
 
 # Include all feature routers
 router.include_router(overview_router)

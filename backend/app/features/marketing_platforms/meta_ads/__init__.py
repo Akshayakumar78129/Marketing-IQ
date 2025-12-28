@@ -15,7 +15,7 @@ from .ad_sets.router import router as ad_sets_router
 from .ad_creatives.router import router as ad_creatives_router
 
 # Main router for Meta Ads feature
-router = APIRouter(prefix="/meta-ads", tags=["Meta Ads"])
+router = APIRouter(prefix="/meta-ads", tags=["Marketing Platforms > Meta Ads"])
 
 # Include all sub-feature routers
 router.include_router(overview_router)

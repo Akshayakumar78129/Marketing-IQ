@@ -5,9 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 # Import feature routers
-from app.features.google_ads import router as google_ads_router
-from app.features.meta_ads import router as meta_ads_router
-from app.features.ga4_analytics import router as ga4_analytics_router
+from app.features.marketing_platforms import router as marketing_platforms_router
 from app.features.thoughtlets import router as thoughtlets_router
 
 # Create FastAPI app
@@ -41,9 +39,7 @@ async def health_check():
 
 
 # Include feature routers with /api/v1 prefix
-app.include_router(google_ads_router, prefix="/api/v1")
-app.include_router(meta_ads_router, prefix="/api/v1")
-app.include_router(ga4_analytics_router, prefix="/api/v1")
+app.include_router(marketing_platforms_router, prefix="/api/v1")
 app.include_router(thoughtlets_router, prefix="/api/v1")
 
 # TODO: Include additional routers

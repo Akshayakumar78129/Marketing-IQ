@@ -14,7 +14,7 @@ from .landing_pages.router import router as landing_pages_router
 from .geographic_performance.router import router as geographic_performance_router
 
 # Main router for GA4 Analytics feature
-router = APIRouter(prefix="/ga4-analytics", tags=["GA4 Analytics"])
+router = APIRouter(prefix="/ga4-analytics", tags=["Marketing Platforms > GA4 Analytics"])
 
 # Include all sub-feature routers
 router.include_router(overview_router)
