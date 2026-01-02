@@ -27,13 +27,23 @@ wheels/
 .installed.cfg
 *.egg
 
-# Environment variables
+# Environment variables - NEVER commit these!
 .env
 .env.local
 .env.dev
 .env.staging
 .env.production
 *.env
+
+# MCP config files with credentials
+.mcp.json
+mcp.json
+**/mcp-config.json
+
+# Credential files
+**/credentials.json
+**/secrets.yaml
+**/secrets.yml
 
 # IDE
 .vscode/
@@ -62,6 +72,7 @@ htmlcov/
 dbt/target/
 dbt/dbt_packages/
 dbt/logs/
+dbt/run_dbt.bat
 
 # Docker
 *.log
@@ -83,3 +94,14 @@ logs/
 
 # OS
 Thumbs.db
+nul
+.DS_Store
+desktop.ini
+
+# Backup files
+*.bak
+*.backup
+*.old
+*.orig
+*.tmp
+*~

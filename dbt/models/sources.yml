@@ -115,7 +115,9 @@ sources:
 
       # Actions (Conversions)
       - name: basic_campaign_actions
-        description: "Campaign-level conversion actions (purchase counts)"
+        description: "Campaign-level conversion actions (purchase counts) - FULL HISTORY"
+      - name: basic_ad_set_actions
+        description: "Ad set-level conversion actions - FULL HISTORY"
       - name: basic_ad_action_values
         description: "Ad-level conversion values (revenue)"
 
@@ -232,3 +234,683 @@ sources:
       # Person (Customer)
       - name: person
         description: "Customer profiles with CLV predictions and churn probability"
+
+  # ============================================
+  # MAGENTO SOURCES
+  # ============================================
+  - name: magento
+    database: CLIENT_RARE_SEEDS_DB
+    schema: MAGENTO
+    description: "Magento 2 ecommerce platform data"
+    tables:
+      # ---- Admin & System ----
+      - name: admin_user
+        description: "Admin user accounts"
+      - name: admin_passwords
+        description: "Admin password history"
+      - name: admin_user_session
+        description: "Admin user sessions"
+      - name: admin_system_messages
+        description: "System messages for admin"
+      - name: adminnotification_inbox
+        description: "Admin notification inbox"
+
+      # ---- Customer ----
+      - name: customer_entity
+        description: "Core customer entity table"
+      - name: customer_entity_datetime
+        description: "Customer datetime attributes"
+      - name: customer_entity_decimal
+        description: "Customer decimal attributes"
+      - name: customer_entity_int
+        description: "Customer integer attributes"
+      - name: customer_entity_text
+        description: "Customer text attributes"
+      - name: customer_entity_varchar
+        description: "Customer varchar attributes"
+      - name: customer_address_entity
+        description: "Customer addresses"
+      - name: customer_address_entity_datetime
+        description: "Address datetime attributes"
+      - name: customer_address_entity_decimal
+        description: "Address decimal attributes"
+      - name: customer_address_entity_int
+        description: "Address integer attributes"
+      - name: customer_address_entity_text
+        description: "Address text attributes"
+      - name: customer_address_entity_varchar
+        description: "Address varchar attributes"
+      - name: customer_group
+        description: "Customer groups"
+      - name: customer_log
+        description: "Customer activity log"
+      - name: customer_visitor
+        description: "Customer visitor tracking"
+      - name: customer_grid_flat
+        description: "Customer grid flat table"
+      - name: customer_eav_attribute
+        description: "Customer EAV attributes"
+      - name: customer_eav_attribute_website
+        description: "Customer attributes by website"
+      - name: customer_form_attribute
+        description: "Customer form attributes"
+
+      # ---- Sales Orders ----
+      - name: sales_order
+        description: "Core sales order table"
+      - name: sales_order_item
+        description: "Order line items"
+      - name: sales_order_address
+        description: "Order addresses"
+      - name: sales_order_payment
+        description: "Order payment information"
+      - name: sales_order_status
+        description: "Order status definitions"
+      - name: sales_order_status_history
+        description: "Order status change history"
+      - name: sales_order_status_label
+        description: "Order status labels"
+      - name: sales_order_status_state
+        description: "Order status states"
+      - name: sales_order_grid
+        description: "Order grid flat table"
+      - name: sales_order_tax
+        description: "Order tax records"
+      - name: sales_order_tax_item
+        description: "Order tax by item"
+      - name: sales_order_aggregated_created
+        description: "Order aggregates by created date"
+      - name: sales_order_aggregated_updated
+        description: "Order aggregates by updated date"
+      - name: sales_payment_transaction
+        description: "Payment transactions"
+
+      # ---- Invoices ----
+      - name: sales_invoice
+        description: "Sales invoices"
+      - name: sales_invoice_item
+        description: "Invoice line items"
+      - name: sales_invoice_comment
+        description: "Invoice comments"
+      - name: sales_invoice_grid
+        description: "Invoice grid flat table"
+      - name: sales_invoiced_aggregated
+        description: "Invoice aggregates"
+      - name: sales_invoiced_aggregated_order
+        description: "Invoice aggregates by order"
+
+      # ---- Shipments ----
+      - name: sales_shipment
+        description: "Sales shipments"
+      - name: sales_shipment_item
+        description: "Shipment line items"
+      - name: sales_shipment_comment
+        description: "Shipment comments"
+      - name: sales_shipment_grid
+        description: "Shipment grid flat table"
+      - name: sales_shipment_track
+        description: "Shipment tracking"
+      - name: sales_shipping_aggregated
+        description: "Shipping aggregates"
+      - name: sales_shipping_aggregated_order
+        description: "Shipping aggregates by order"
+
+      # ---- Credit Memos ----
+      - name: sales_creditmemo
+        description: "Credit memos"
+      - name: sales_creditmemo_item
+        description: "Credit memo line items"
+      - name: sales_creditmemo_comment
+        description: "Credit memo comments"
+      - name: sales_creditmemo_grid
+        description: "Credit memo grid flat table"
+      - name: sales_refunded_aggregated
+        description: "Refund aggregates"
+      - name: sales_refunded_aggregated_order
+        description: "Refund aggregates by order"
+
+      # ---- Bestsellers ----
+      - name: sales_bestsellers_aggregated_daily
+        description: "Daily bestseller aggregates"
+      - name: sales_bestsellers_aggregated_monthly
+        description: "Monthly bestseller aggregates"
+      - name: sales_bestsellers_aggregated_yearly
+        description: "Yearly bestseller aggregates"
+
+      # ---- Quote (Cart) ----
+      - name: quote
+        description: "Shopping cart quotes"
+      - name: quote_item
+        description: "Quote line items"
+      - name: quote_item_option
+        description: "Quote item options"
+      - name: quote_address
+        description: "Quote addresses"
+      - name: quote_address_item
+        description: "Quote address items"
+      - name: quote_payment
+        description: "Quote payment information"
+      - name: quote_shipping_rate
+        description: "Quote shipping rates"
+      - name: quote_id_mask
+        description: "Quote ID masks for guest checkout"
+
+      # ---- Catalog Products ----
+      - name: catalog_product_entity
+        description: "Core product entity table"
+      - name: catalog_product_entity_datetime
+        description: "Product datetime attributes"
+      - name: catalog_product_entity_decimal
+        description: "Product decimal attributes (price, weight, etc.)"
+      - name: catalog_product_entity_int
+        description: "Product integer attributes"
+      - name: catalog_product_entity_text
+        description: "Product text attributes (description, etc.)"
+      - name: catalog_product_entity_varchar
+        description: "Product varchar attributes (name, sku, etc.)"
+      - name: catalog_product_entity_tier_price
+        description: "Product tier pricing"
+      - name: catalog_product_entity_gallery
+        description: "Product gallery images"
+      - name: catalog_product_entity_media_gallery
+        description: "Product media gallery"
+      - name: catalog_product_entity_media_gallery_value
+        description: "Product media gallery values"
+      - name: catalog_product_entity_media_gallery_value_to_entity
+        description: "Media gallery to product mapping"
+      - name: catalog_product_entity_media_gallery_value_video
+        description: "Product video gallery"
+      - name: catalog_product_website
+        description: "Product to website assignment"
+      - name: catalog_product_relation
+        description: "Product relationships"
+      - name: catalog_product_link
+        description: "Product links (related, upsell, crosssell)"
+      - name: catalog_product_link_attribute
+        description: "Product link attributes"
+      - name: catalog_product_link_type
+        description: "Product link types"
+      - name: catalog_product_super_attribute
+        description: "Configurable product super attributes"
+      - name: catalog_product_super_attribute_label
+        description: "Super attribute labels"
+      - name: catalog_product_super_link
+        description: "Configurable product links"
+      - name: catalog_product_option
+        description: "Custom product options"
+      - name: catalog_product_option_title
+        description: "Product option titles"
+      - name: catalog_product_option_price
+        description: "Product option prices"
+      - name: catalog_product_option_type_value
+        description: "Product option type values"
+      - name: catalog_product_option_type_title
+        description: "Product option type titles"
+      - name: catalog_product_option_type_price
+        description: "Product option type prices"
+      - name: catalog_product_bundle_option
+        description: "Bundle product options"
+      - name: catalog_product_bundle_option_value
+        description: "Bundle option values"
+      - name: catalog_product_bundle_selection
+        description: "Bundle product selections"
+      - name: catalog_product_bundle_selection_price
+        description: "Bundle selection prices"
+
+      # ---- Catalog Categories ----
+      - name: catalog_category_entity
+        description: "Core category entity table"
+      - name: catalog_category_entity_datetime
+        description: "Category datetime attributes"
+      - name: catalog_category_entity_decimal
+        description: "Category decimal attributes"
+      - name: catalog_category_entity_int
+        description: "Category integer attributes"
+      - name: catalog_category_entity_text
+        description: "Category text attributes"
+      - name: catalog_category_entity_varchar
+        description: "Category varchar attributes"
+      - name: catalog_category_product
+        description: "Category to product assignment"
+      - name: catalog_category_product_index
+        description: "Category product index"
+
+      # ---- Product Indexes ----
+      - name: catalog_product_index_price
+        description: "Product price index"
+      - name: catalog_product_index_eav
+        description: "Product EAV index"
+      - name: catalog_product_index_eav_decimal
+        description: "Product EAV decimal index"
+      - name: catalog_product_index_tier_price
+        description: "Product tier price index"
+      - name: catalog_product_index_website
+        description: "Product website index"
+
+      # ---- Catalog Rules (Promos) ----
+      - name: catalogrule
+        description: "Catalog price rules"
+      - name: catalogrule_product
+        description: "Catalog rules applied to products"
+      - name: catalogrule_product_price
+        description: "Catalog rule product prices"
+      - name: catalogrule_customer_group
+        description: "Catalog rules by customer group"
+      - name: catalogrule_website
+        description: "Catalog rules by website"
+      - name: catalogrule_group_website
+        description: "Catalog rules by group and website"
+
+      # ---- Sales Rules (Cart Rules) ----
+      - name: salesrule
+        description: "Sales/cart price rules"
+      - name: salesrule_coupon
+        description: "Coupon codes"
+      - name: salesrule_coupon_usage
+        description: "Coupon usage tracking"
+      - name: salesrule_customer
+        description: "Sales rule per customer usage"
+      - name: salesrule_customer_group
+        description: "Sales rules by customer group"
+      - name: salesrule_website
+        description: "Sales rules by website"
+      - name: salesrule_label
+        description: "Sales rule labels"
+      - name: salesrule_product_attribute
+        description: "Sales rule product attributes"
+      - name: salesrule_coupon_aggregated
+        description: "Coupon usage aggregates"
+      - name: salesrule_coupon_aggregated_order
+        description: "Coupon aggregates by order"
+      - name: salesrule_coupon_aggregated_updated
+        description: "Updated coupon aggregates"
+
+      # ---- EAV (Entity-Attribute-Value) ----
+      - name: eav_attribute
+        description: "EAV attribute definitions"
+      - name: eav_attribute_set
+        description: "Attribute sets"
+      - name: eav_attribute_group
+        description: "Attribute groups"
+      - name: eav_attribute_option
+        description: "Attribute options"
+      - name: eav_attribute_option_value
+        description: "Attribute option values"
+      - name: eav_attribute_option_swatch
+        description: "Attribute option swatches"
+      - name: eav_attribute_label
+        description: "Attribute labels"
+      - name: eav_entity_type
+        description: "Entity types (product, customer, etc.)"
+      - name: eav_entity_attribute
+        description: "Entity to attribute mapping"
+      - name: catalog_eav_attribute
+        description: "Catalog-specific EAV attributes"
+
+      # ---- CMS ----
+      - name: cms_page
+        description: "CMS pages"
+      - name: cms_page_store
+        description: "CMS pages by store"
+      - name: cms_block
+        description: "CMS blocks"
+      - name: cms_block_store
+        description: "CMS blocks by store"
+
+      # ---- Store & Website ----
+      - name: store
+        description: "Store views"
+      - name: store_group
+        description: "Store groups"
+      - name: store_website
+        description: "Websites"
+
+      # ---- URL Rewrites ----
+      - name: url_rewrite
+        description: "URL rewrites"
+      - name: catalog_url_rewrite_product_category
+        description: "Product/category URL rewrites"
+
+      # ---- Reviews & Ratings ----
+      - name: review
+        description: "Product reviews"
+      - name: review_detail
+        description: "Review details"
+      - name: review_status
+        description: "Review statuses"
+      - name: review_store
+        description: "Reviews by store"
+      - name: review_entity
+        description: "Review entities"
+      - name: review_entity_summary
+        description: "Review summaries"
+      - name: rating
+        description: "Rating definitions"
+      - name: rating_entity
+        description: "Rating entities"
+      - name: rating_option
+        description: "Rating options"
+      - name: rating_option_vote
+        description: "Rating votes"
+      - name: rating_option_vote_aggregated
+        description: "Rating vote aggregates"
+      - name: rating_store
+        description: "Ratings by store"
+      - name: rating_title
+        description: "Rating titles"
+
+      # ---- Newsletter ----
+      - name: newsletter_subscriber
+        description: "Newsletter subscribers"
+      - name: newsletter_template
+        description: "Newsletter templates"
+      - name: newsletter_queue
+        description: "Newsletter queue"
+      - name: newsletter_queue_link
+        description: "Newsletter queue links"
+      - name: newsletter_queue_store_link
+        description: "Newsletter queue by store"
+      - name: newsletter_problem
+        description: "Newsletter delivery problems"
+
+      # ---- Wishlist ----
+      - name: wishlist
+        description: "Wishlists"
+      - name: wishlist_item
+        description: "Wishlist items"
+      - name: wishlist_item_option
+        description: "Wishlist item options"
+
+      # ---- Product Alerts ----
+      - name: product_alert_price
+        description: "Price drop alerts"
+      - name: product_alert_stock
+        description: "Stock alerts"
+
+      # ---- Inventory ----
+      - name: cataloginventory_stock
+        description: "Inventory stock"
+      - name: cataloginventory_stock_item
+        description: "Inventory stock items"
+      - name: cataloginventory_stock_status
+        description: "Inventory stock status"
+      - name: inventory_source
+        description: "Inventory sources (MSI)"
+      - name: inventory_source_item
+        description: "Inventory source items"
+      - name: inventory_stock
+        description: "Inventory stock (MSI)"
+      - name: inventory_source_stock_link
+        description: "Source to stock links"
+      - name: inventory_source_carrier_link
+        description: "Source to carrier links"
+      - name: inventory_reservation
+        description: "Inventory reservations"
+      - name: inventory_shipment_source
+        description: "Shipment sources"
+      - name: inventory_stock_sales_channel
+        description: "Stock sales channels"
+      - name: inventory_low_stock_notification_configuration
+        description: "Low stock notification config"
+
+      # ---- Tax ----
+      - name: tax_class
+        description: "Tax classes"
+      - name: tax_calculation
+        description: "Tax calculations"
+      - name: tax_calculation_rate
+        description: "Tax rates"
+      - name: tax_calculation_rate_title
+        description: "Tax rate titles"
+      - name: tax_calculation_rule
+        description: "Tax rules"
+      - name: tax_order_aggregated_created
+        description: "Tax aggregates by created date"
+      - name: tax_order_aggregated_updated
+        description: "Tax aggregates by updated date"
+      - name: weee_tax
+        description: "WEEE tax (FPT)"
+
+      # ---- Downloadable Products ----
+      - name: downloadable_link
+        description: "Downloadable product links"
+      - name: downloadable_link_title
+        description: "Downloadable link titles"
+      - name: downloadable_link_price
+        description: "Downloadable link prices"
+      - name: downloadable_link_purchased
+        description: "Purchased downloadable links"
+      - name: downloadable_link_purchased_item
+        description: "Purchased downloadable items"
+      - name: downloadable_sample
+        description: "Downloadable product samples"
+      - name: downloadable_sample_title
+        description: "Sample titles"
+
+      # ---- Payment (PayPal, Vault) ----
+      - name: paypal_billing_agreement
+        description: "PayPal billing agreements"
+      - name: paypal_billing_agreement_order
+        description: "PayPal agreement orders"
+      - name: paypal_payment_transaction
+        description: "PayPal payment transactions"
+      - name: paypal_settlement_report
+        description: "PayPal settlement reports"
+      - name: paypal_settlement_report_row
+        description: "PayPal settlement rows"
+      - name: paypal_cert
+        description: "PayPal certificates"
+      - name: vault_payment_token
+        description: "Vault payment tokens"
+      - name: vault_payment_token_order_payment_link
+        description: "Vault token to order link"
+
+      # ---- Checkout ----
+      - name: checkout_agreement
+        description: "Checkout agreements (terms)"
+      - name: checkout_agreement_store
+        description: "Checkout agreements by store"
+
+      # ---- Shipping ----
+      - name: shipping_tablerate
+        description: "Shipping table rates"
+
+      # ---- Search ----
+      - name: search_query
+        description: "Search queries"
+      - name: search_synonyms
+        description: "Search synonyms"
+      - name: catalogsearch_recommendations
+        description: "Search recommendations"
+
+      # ---- Reports ----
+      - name: report_event
+        description: "Report events"
+      - name: report_event_types
+        description: "Report event types"
+      - name: report_viewed_product_index
+        description: "Viewed product index"
+      - name: report_compared_product_index
+        description: "Compared product index"
+      - name: report_viewed_product_aggregated_daily
+        description: "Daily viewed product aggregates"
+      - name: report_viewed_product_aggregated_monthly
+        description: "Monthly viewed product aggregates"
+      - name: report_viewed_product_aggregated_yearly
+        description: "Yearly viewed product aggregates"
+      - name: reporting_counts
+        description: "Reporting counts"
+      - name: reporting_module_status
+        description: "Reporting module status"
+      - name: reporting_orders
+        description: "Reporting orders"
+      - name: reporting_system_updates
+        description: "Reporting system updates"
+      - name: reporting_users
+        description: "Reporting users"
+
+      # ---- Configuration ----
+      - name: core_config_data
+        description: "Core configuration data"
+      - name: flag
+        description: "System flags"
+
+      # ---- Directory ----
+      - name: directory_country
+        description: "Countries"
+      - name: directory_country_format
+        description: "Country formats"
+      - name: directory_country_region
+        description: "Country regions"
+      - name: directory_country_region_name
+        description: "Region names"
+      - name: directory_currency_rate
+        description: "Currency exchange rates"
+
+      # ---- Integration & OAuth ----
+      - name: integration
+        description: "API integrations"
+      - name: oauth_consumer
+        description: "OAuth consumers"
+      - name: oauth_token
+        description: "OAuth tokens"
+      - name: oauth_nonce
+        description: "OAuth nonces"
+      - name: oauth_token_request_log
+        description: "OAuth token request log"
+
+      # ---- Email / Templates ----
+      - name: email_template
+        description: "Email templates"
+
+      # ---- Design & Theme ----
+      - name: theme
+        description: "Themes"
+      - name: theme_file
+        description: "Theme files"
+      - name: design_change
+        description: "Design changes"
+      - name: design_config_grid_flat
+        description: "Design config grid"
+
+      # ---- Widget ----
+      - name: widget
+        description: "Widget definitions"
+      - name: widget_instance
+        description: "Widget instances"
+      - name: widget_instance_page
+        description: "Widget instance pages"
+      - name: widget_instance_page_layout
+        description: "Widget page layouts"
+
+      # ---- UI Bookmark ----
+      - name: ui_bookmark
+        description: "Admin UI bookmarks"
+
+      # ---- Variables ----
+      - name: variable
+        description: "Custom variables"
+      - name: variable_value
+        description: "Variable values"
+
+      # ---- Gift Message ----
+      - name: gift_message
+        description: "Gift messages"
+
+      # ---- Persistent Session ----
+      - name: persistent_session
+        description: "Persistent customer sessions"
+
+      # ---- Compare ----
+      - name: catalog_compare_item
+        description: "Product compare items"
+
+      # ---- Authorization ----
+      - name: authorization_role
+        description: "Admin roles"
+      - name: authorization_rule
+        description: "Admin role rules"
+
+      # ---- Cron ----
+      - name: cron_schedule
+        description: "Cron job schedule"
+
+      # ---- Cache ----
+      - name: cache
+        description: "Cache storage"
+      - name: cache_tag
+        description: "Cache tags"
+
+      # ---- Session ----
+      - name: session
+        description: "Session storage"
+
+      # ---- Indexer ----
+      - name: indexer_state
+        description: "Indexer state"
+      - name: mview_state
+        description: "Materialized view state"
+
+      # ---- Import/Export ----
+      - name: import_history
+        description: "Import history"
+      - name: importexport_importdata
+        description: "Import data"
+
+      # ---- Queue ----
+      - name: queue
+        description: "Message queue"
+      - name: queue_message
+        description: "Queue messages"
+      - name: queue_message_status
+        description: "Queue message status"
+      - name: queue_lock
+        description: "Queue locks"
+      - name: queue_poison_pill
+        description: "Queue poison pills"
+
+      # ---- Translation ----
+      - name: translation
+        description: "Translations"
+
+      # ---- Layout ----
+      - name: layout_update
+        description: "Layout updates"
+      - name: layout_link
+        description: "Layout links"
+
+      # ---- Captcha ----
+      - name: captcha_log
+        description: "Captcha log"
+
+      # ---- Setup ----
+      - name: setup_module
+        description: "Module setup status"
+      - name: patch_list
+        description: "Applied patches"
+
+      # ---- Password Reset ----
+      - name: password_reset_request_event
+        description: "Password reset requests"
+
+      # ---- Catalog Frontend ----
+      - name: catalog_product_frontend_action
+        description: "Product frontend actions"
+
+      # ---- Google ----
+      - name: googleoptimizer_code
+        description: "Google Optimizer code"
+
+      # ---- Sitemap ----
+      - name: sitemap
+        description: "Sitemap configurations"
+
+      # ---- Friend ----
+      - name: sendfriend_log
+        description: "Send to friend log"
+
+      # ---- Sales Sequence ----
+      - name: sales_sequence_meta
+        description: "Sales sequence metadata"
+      - name: sales_sequence_profile
+        description: "Sales sequence profiles"
