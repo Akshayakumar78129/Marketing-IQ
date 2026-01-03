@@ -7,6 +7,9 @@ from .core_performance import router as core_performance_router
 from .search_keywords import router as search_keywords_router
 from .revenue_lifetime_value import router as revenue_lifetime_value_router
 from .creative_messaging import router as creative_messaging_router
+from .spend_and_budget import router as spend_and_budget_router
+from .audience_behavioral import router as audience_behavioral_router
+from .funnel_attribution import router as funnel_attribution_router
 
 # Main router for Thoughtlets feature
 router = APIRouter(prefix="/thoughtlets")
@@ -16,5 +19,8 @@ router.include_router(core_performance_router)
 router.include_router(search_keywords_router)
 router.include_router(revenue_lifetime_value_router)
 router.include_router(creative_messaging_router)
+router.include_router(spend_and_budget_router)
+router.include_router(audience_behavioral_router)
+router.include_router(funnel_attribution_router)
 
 __all__ = ["router"]
