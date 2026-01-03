@@ -12,3 +12,5 @@ sql_statement_permissions:
   - Select: true
   - Describe: true
   - Show: true
+  - Create: true
+  - Drop: true
